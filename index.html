@@ -11,7 +11,7 @@
     <meta name="theme-color" content="#193e85" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 
-    <link rel="stylesheet" href="styles.min.css?v=9d9d9a3331ae" />
+    <link rel="stylesheet" href="styles.min.css?v=cb684471c436" />
     <link
       rel="canonical"
       href="https://estudioideamos.github.io/mayorista-2020/"
@@ -297,7 +297,10 @@
           ><img
             class="hero-photo"
             src="assets/portada-1200.webp"
-            srcset="assets/portada-640.webp 640w, assets/portada-1200.webp 1122w"
+            srcset="
+              assets/portada-640.webp   640w,
+              assets/portada-1200.webp 1122w
+            "
             sizes="(max-width: 760px) 100vw, 50vw"
             decoding="async"
             alt="Fachada y entrada de Mayorista 2020"
@@ -328,7 +331,20 @@
           aria-label="Pausar animaciones"
           aria-pressed="false"
         >
-          <span aria-hidden="true">Ⅱ</span>
+          <svg
+            class="motion-icon"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <g class="motion-icon-pause">
+              <rect x="6" y="5" width="4" height="14" rx="1" />
+              <rect x="14" y="5" width="4" height="14" rx="1" />
+            </g>
+            <path class="motion-icon-play" d="M8 5.5 19 12 8 18.5Z" />
+          </svg>
         </button>
       </section>
       <section
@@ -966,7 +982,7 @@
       <span aria-hidden="true">↑</span>
     </button>
     <script src="premium.js?v=2c0e29a61b7a" defer></script>
-    <script src="app.js?v=e742b67acde2" defer></script>
+    <script src="app.js?v=c713b47abd1f" defer></script>
     <script src="smooth-scroll.js?v=60a1227767af" defer></script>
   </body>
 </html>

@@ -4225,3 +4225,23 @@ h1 em:after {
     font-size: 24px;
   }
 }
+.motion-toggle {
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.motion-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+.motion-icon-play {
+  display: none;
+}
+.motion-toggle[aria-pressed="true"] .motion-icon-pause {
+  display: none;
+}
+.motion-toggle[aria-pressed="true"] .motion-icon-play {
+  display: block;
+}

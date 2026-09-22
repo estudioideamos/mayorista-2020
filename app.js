@@ -126,7 +126,6 @@ document.querySelectorAll(".motion-toggle").forEach((button) => {
       "aria-label",
       paused ? "Reanudar animaciones" : "Pausar animaciones",
     );
-    button.firstElementChild.textContent = paused ? "▶" : "Ⅱ";
   });
 });
 if (
