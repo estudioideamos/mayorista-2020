@@ -4154,3 +4154,69 @@ h1 em:after {
     text-align: center;
   }
 }
+.header-wa-icon,
+.header-wa-mobile {
+  display: none;
+}
+@media (max-width: 760px) {
+  .header > .header-cta {
+    min-height: 44px;
+    padding: 10px 13px;
+    gap: 8px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+  .header > .header-cta:before {
+    content: none;
+  }
+  .header-cta .header-wa-desktop,
+  .header-cta .header-wa-arrow {
+    display: none;
+  }
+  .header-cta .header-wa-icon {
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+  .header > .header-cta .header-wa-mobile {
+    display: block;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .manifesto-inner {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    text-align: center;
+    gap: 22px;
+    padding-block: 42px;
+  }
+  .manifesto-symbol {
+    font-size: 42px;
+  }
+  .manifesto-inner > div {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+  }
+  .manifesto h2 {
+    font-size: clamp(34px, 9vw, 44px);
+  }
+  .manifesto .eyebrow {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+  }
+  .manifesto-link {
+    margin: 4px auto 0;
+    flex-direction: row-reverse;
+    gap: 14px;
+  }
+  .manifesto-link small {
+    font-size: 11px;
+  }
+  .manifesto-link > span {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
+}
