@@ -1,0 +1,17 @@
+{
+  "name": "mayorista-2020",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sitio de Mayorista 2020",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "format": "prettier --write *.html *.js README.md scripts/*.mjs styles.css assets/fonts.css"
+  },
+  "devDependencies": {
+    "cssnano": "8.0.10",
+    "postcss": "8.5.28",
+    "prettier": "3.9.8",
+    "sharp": "0.35.4"
+  }
+}

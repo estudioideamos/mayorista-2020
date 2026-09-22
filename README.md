@@ -1,45 +1,60 @@
 # Mayorista 2020
 
-Sitio comercial responsive y estático, preparado para GitHub Pages. No requiere instalación de dependencias ni compilación.
+Sitio estático con Inicio, Contacto y Recursos Humanos. HTML semántico, CSS propio y JavaScript sin dependencias en el navegador. Los formularios requieren un hosting PHP para enviar; GitHub Pages es una vista previa.
 
-## Previsualizar
+## Desarrollo
 
-Desde esta carpeta, ejecutar `python -m http.server 4173` y abrir `http://localhost:4173`.
+Requiere Node.js 24 LTS y npm. Las versiones exactas de las herramientas están en package-lock.json.
 
-También se puede abrir `index.html` directamente. La conexión a Internet permite cargar las fuentes de Google Fonts; hay tipografías de respaldo.
+```sh
+npm ci
+npm run format
+npm run build
+npm run check
+npm audit
+```
 
-## Editar
+Servir la carpeta raíz con un servidor HTTP local para previsualizar. No usar el PHP de producción para pruebas de envío sin un buzón o SMTP de prueba.
 
-- `index.html`: textos, sucursales, enlaces y selector de WhatsApp. Si cambia una sucursal, actualizar también su enlace en el selector.
-- `styles.css`: identidad, tamaños, responsive y animaciones.
-- `app.js`: menú, selector de WhatsApp y marquesinas.
-- `assets/`: logo y fotografías suministrados por el cliente. Los archivos originales de la carpeta m20 no se modifican.
-
-Identidad derivada del logo M20: azul #193e85, naranja #f45b19 y fondo #f8f9fa. Barlow Condensed para titulares y Manrope para lectura. Cortes diagonales e inclinación sutil inspirados en la marca.
-
-Los contactos, horarios y direcciones corresponden al brief. No se publican precios, días de atención, promociones ni email no confirmados. Lácteos y congelados se presentan como categorías en incorporación.
+- HTML: contenido, metadatos, enlaces y JSON-LD de cada página.
+- styles.css: estilos editables. styles.min.css: generado; no editar manualmente.
+- app.js: navegación, selector de sucursal y marquesinas.
+- premium.js: cabecera, botón de subir, columnas fijas y efectos.
+- smooth-scroll.js: inercia de la rueda; mantiene touch y controles nativos.
+- forms.js y enviar.php: validación y envío en el hosting final.
+- design/: originales de fotografías y portada social, necesarios para regenerar assets. No se publican en Pages.
+- assets/: imágenes WebP responsive, portada JPEG 1200 × 630, SVG y fuentes WOFF2 locales con licencias.
+- scripts/: build y comprobaciones de integridad.
+- dist/: salida local ignorada por Git. Contiene solo archivos públicos estáticos.
 
 ## Publicación
 
-GitHub Pages publica la rama `main`, carpeta raíz. Los enlaces y recursos usan rutas relativas para funcionar bajo el nombre del repositorio.
+GitHub Actions publica únicamente la lista de archivos públicos definida en .github/workflows/pages.yml. PHP, fuentes de diseño, documentación, scripts de desarrollo y node_modules quedan fuera. Las acciones se fijan a revisiones exactas; Dependabot propone actualizaciones sin fusionarlas automáticamente.
 
-Logo de WhatsApp: archivo de WhatsApp/Meta, conservado sin modificar. Fuente: https://commons.wikimedia.org/wiki/File:WhatsApp_Logo_green.svg
+Después de editar, ejecutar format → build → check y confirmar tanto fuentes como assets generados. El build actualiza hashes de caché y la política CSP del JSON-LD.
 
-## Contacto y novedades
+## Hosting definitivo y formularios
 
-- contacto.html y recursos-humanos.html: formularios atendidos por forms.js y enviar.php. Ver configuración del servidor al final.
-- Dos marquesinas continuas con pausa y soporte para movimiento reducido.
-- Instagram oficial revisado: https://www.instagram.com/mayorista2020__/. La biografía confirma venta mayorista y minorista. Canal de novedades publicado en el perfil: https://whatsapp.com/channel/0029Vb828km0lwglWOxds63C. Se conservan direcciones y Maps del brief. No se incorporan promociones ni precios no verificados.
+Subir el contenido de dist/ más enviar.php y .htaccess a un hosting con una versión de PHP mantenida, extensión fileinfo y mail() configurado. Destinatarios en el inicio de enviar.php: Contacto info@m20mayorista.com; RR. HH. rrhh@m20mayorista.com. No hay contraseñas ni secretos en el repositorio.
 
-- smooth-scroll.js: inercia para ruedita, multiplicador 0.55 y amortiguación de 160 ms. Mantiene controles, scroll interno, teclado y touch nativos; respeta movimiento reducido.
+Configurar upload_max_filesize >= 5M y post_max_size >= 6M, HTTPS, SPF/DKIM y limitación de solicitudes en el hosting. Apache debe permitir las directivas de .htaccess; con Nginx el proveedor debe trasladar las cabeceras y caché a su configuración. No subir el repositorio entero ni la carpeta .git.
 
+Los formularios rechazan origen externo, cabeceras inyectadas, campos inválidos y archivos no PDF. Límite: un intento por IP por minuto y 100 intentos globales por hora. Solo se guardan contadores temporales, no mensajes ni CV. El archivo se adjunta como curriculum.pdf. La validación MIME no equivale a un antivirus: el servidor/buzón debe escanear adjuntos. No abrir archivos sospechosos. El hosting debe mantener PHP y el servidor actualizados.
 
-## Formularios en el servidor
+Se probaron ambos flujos contra un SMTP local sin enviar correo externo. Que mail() acepte un mensaje no garantiza recepción. Comprobar una consulta y un CV reales después del despliegue. Pages no ejecuta PHP y avisa que el envío no está habilitado.
 
-Contacto y Recursos Humanos usan forms.js y enviar.php, sin servicios externos ni apertura de aplicaciones de correo. Cambiar destinatarios en el arreglo config de enviar.php: info@m20mayorista.com y rrhh@m20mayorista.com.
+## SEO, IA y dominio
 
-Para habilitar: subir el sitio completo al hosting con PHP 8+, fileinfo y mail() configurado por el proveedor. Configurar upload_max_filesize >= 5M y post_max_size >= 6M. El dominio debe permitir correo saliente y tener SPF/DKIM según el hosting. No hay credenciales en el proyecto.
+Las URLs canónicas actuales apuntan a https://estudioideamos.github.io/mayorista-2020/. Al migrar, actualizar canónicas, Open Graph, JSON-LD, sitemap.xml, robots.txt, llms.txt, 404.html y la URL base de scripts/check.mjs. Regenerar con build y volver a comprobar. No apuntar canónicas a un dominio que todavía no publica el sitio.
 
-En GitHub Pages y localhost los formularios se identifican como vista previa y no envían datos. En el hosting hay que comprobar recepción real de una consulta y un CV PDF antes de dar el envío por operativo. Se verificó sintaxis y ejecución con PHP 8.5.11: validaciones, rechazo de origen externo, límite por minuto, destinatarios, Reply-To y adjunto PDF mediante un servidor SMTP local de prueba, sin envío externo. La recepción real queda pendiente del hosting. La aceptación por mail() no confirma entrega en bandeja de entrada.
+Datos estructurados: Organization, WebSite, WebPage/ContactPage, cuatro Store y breadcrumbs internos. No se publican precios, stock, vacantes, reseñas ni días de atención no confirmados. El horario conocido es 08:00–16:00 hs.; consultar días con cada sucursal.
 
-El endpoint valida campos y PDF de hasta 5 MB, usa remitente fijo y Reply-To del visitante, rechaza orígenes distintos, incluye campo anti-bots y limita intentos por IP a uno por minuto. No guarda CV ni mensajes permanentemente; los archivos temporales de subida los elimina PHP al terminar. Los registros de limitación contienen solamente una marca de tiempo y usan nombres con hash en la carpeta temporal del servidor.
+llms.txt resume información confirmada y enlaces oficiales; es complementario y no garantiza que una IA cite el sitio. El contenido principal está disponible sin JavaScript. Google no requiere archivos especiales para sus funciones de IA: https://developers.google.com/search/docs/fundamentals/ai-optimization-guide
+
+robots.txt solo rige cuando está en la raíz del dominio. En Pages bajo /mayorista-2020/, no controla los rastreadores del dominio estudioideamos.github.io; sitemap y metadatos sí siguen disponibles. Registrar el sitemap y verificar indexación en Search Console cuando el propietario tenga acceso.
+
+## Portada social
+
+assets/m20-social.jpg se usa en Open Graph y Twitter Cards. Original en design/social/m20-share-source.png; generado con la herramienta integrada de imágenes a partir del logo. Prompt y notas en docs/social-image.md. Las redes pueden conservar una vista previa anterior en caché.
+
+Logo WhatsApp oficial conservado sin modificar. Fuentes Barlow Condensed y Manrope: licencias OFL en assets/fonts/.

@@ -1,0 +1,10 @@
+node_modules/
+.qa-runtime/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+
+dist/
