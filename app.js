@@ -36,6 +36,16 @@ dialog.addEventListener('close', () => { document.body.style.overflow = ''; });
 document.querySelector('#year').textContent = new Date().getFullYear();
 // Equal-width copies make each marquee loop seamlessly without duplicate screen-reader text.
 document.querySelectorAll('.marquee-track').forEach(track => {
+  if (track.closest('.announcement')) {
+    const group = track.firstElementChild;
+    const repeats = Math.max(2, Math.ceil(screen.width / Math.max(1, group.scrollWidth)) + 1);
+    const items = [...group.children];
+    for (let i = 1; i < repeats; i++) items.forEach(item => {
+      const repeated = item.cloneNode(true);
+      repeated.setAttribute('aria-hidden', 'true');
+      group.append(repeated);
+    });
+  }
   const copy = track.firstElementChild.cloneNode(true);
   copy.setAttribute('aria-hidden', 'true');
   track.append(copy);

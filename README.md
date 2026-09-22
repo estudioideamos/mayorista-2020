@@ -32,3 +32,6 @@ Logo de WhatsApp: archivo de WhatsApp/Meta, conservado sin modificar. Fuente: ht
 - Instagram oficial revisado: https://www.instagram.com/mayorista2020__/. La biografía confirma venta mayorista y minorista. Canal de novedades publicado en el perfil: https://whatsapp.com/channel/0029Vb828km0lwglWOxds63C. Se conservan direcciones y Maps del brief. No se incorporan promociones ni precios no verificados.
 
 - smooth-scroll.js: inercia para ruedita, multiplicador 0.55 y amortiguación de 160 ms. Mantiene controles, scroll interno, teclado y touch nativos; respeta movimiento reducido.
+
+## Recursos Humanos
+Página recursos-humanos.html enlazada solo desde el footer. recursos-humanos.js prepara un correo a rrhh@m20mayorista.com. El postulante adjunta su CV en su aplicación de correo y confirma el envío allí. La web no almacena postulaciones ni archivos.
