@@ -14,6 +14,7 @@ for (const name of [
   "pilar",
   "portada",
   "repositor",
+  "salon",
 ]) {
   for (const width of [640, 1200]) {
     await sharp(`design/photos/${name}.jpg`)
@@ -48,6 +49,7 @@ for (const name of [
   "pilar",
   "portada",
   "repositor",
+  "salon",
 ]) {
   dimensions[name] = await sharp(`assets/${name}-1200.webp`).metadata();
 }
