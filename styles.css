@@ -4245,3 +4245,14 @@ h1 em:after {
 .motion-toggle[aria-pressed="true"] .motion-icon-play {
   display: block;
 }
+.manifesto-arrow {
+  display: block;
+  width: 28px;
+  height: 28px;
+}
+@media (max-width: 760px) {
+  .manifesto-arrow {
+    width: 20px;
+    height: 20px;
+  }
+}
