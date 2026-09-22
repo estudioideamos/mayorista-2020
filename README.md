@@ -22,3 +22,5 @@ Los contactos, horarios y direcciones corresponden al brief. No se publican prec
 ## Publicación
 
 GitHub Pages publica la rama `main`, carpeta raíz. Los enlaces y recursos usan rutas relativas para funcionar bajo el nombre del repositorio.
+
+Logo de WhatsApp: archivo de WhatsApp/Meta, conservado sin modificar. Fuente: https://commons.wikimedia.org/wiki/File:WhatsApp_Logo_green.svg
