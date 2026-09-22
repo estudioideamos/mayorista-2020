@@ -4154,6 +4154,11 @@ h1 em:after {
     text-align: center;
   }
 }
+.header-cta .header-wa-desktop {
+  font-size: 14px;
+  line-height: 1.4;
+  transform: none;
+}
 .header-wa-icon,
 .header-wa-mobile {
   display: none;
