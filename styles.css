@@ -3542,7 +3542,7 @@ h2 em {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, #071b4638, transparent 40%, #071b4659);
+  background: none;
 }
 .branch-index {
   z-index: 1;
@@ -4256,3 +4256,8 @@ h1 em:after {
     height: 20px;
   }
 }
+/* Tonal corrections preserve the original photographs and signage. */
+.branch-photo img[src*="jcp-1-"] { filter: contrast(1.2) saturate(1.16) brightness(1.02); }
+.branch-photo img[src*="jcp-esquina-"] { filter: brightness(1.08) contrast(1.06) saturate(1.08); }
+.branch-photo img[src*="moreno-"] { filter: brightness(0.96) contrast(1.04) saturate(1.14); }
+.branch-photo img[src*="pilar-"] { filter: brightness(1.16) contrast(1.06) saturate(1.12); }
