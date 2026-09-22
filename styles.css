@@ -3918,22 +3918,43 @@ h1 em:after {
   .footer-links {
     align-items: center;
     gap: 0;
-    padding: 0 12px 22px;
+    padding: 0 24px 24px;
+    background: radial-gradient(ellipse at 50% 0, #ffffff06, transparent 75%);
   }
   .footer-links > a {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    min-height: 44px;
+    min-height: 52px;
     font-size: 14px;
+    font-weight: 600;
+    gap: 10px;
+    border-bottom: 1px solid #ffffff0d;
+    transition:
+      color 0.2s,
+      background 0.2s;
+  }
+  .footer-links > a:last-of-type {
+    border-bottom: 0;
+  }
+  .footer-links > a > span {
+    color: #ff925a;
+    font-size: 13px;
+  }
+  .footer-disclosure[open] summary h2 {
+    color: #ff925a;
   }
   .footer-links > a:hover {
     transform: none;
+    background: #ffffff05;
   }
   .footer-links > p {
-    margin: 12px 0 0;
+    margin: 16px 0 0;
     text-align: center;
+    font-size: 12px;
+    line-height: 1.8;
+    color: #93a9cb;
   }
   .footer-contact {
     width: 100%;
@@ -4066,6 +4087,11 @@ h1 em:after {
   }
   .menu-toggle {
     border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-items: center;
+    flex-shrink: 0;
     transition: background 0.2s;
   }
   .menu-toggle[aria-expanded="true"] {
@@ -4096,5 +4122,35 @@ h1 em:after {
   }
   .mobile-menu-note {
     margin-top: 18px;
+  }
+}
+
+/* Center short mobile introductions; keep detailed content and form fields readable. */
+@media (max-width: 760px) {
+  .hero-copy,
+  .section-heading,
+  .closing-copy {
+    text-align: center;
+  }
+  .hero-copy .eyebrow,
+  .purchase-labels,
+  .hero-actions,
+  .hero-foot {
+    justify-content: center;
+  }
+  .hero-actions {
+    align-items: center;
+  }
+  .section-heading > p,
+  .hero-description,
+  .closing-copy > p {
+    margin-inline: auto;
+  }
+  .closing-copy .button {
+    margin-inline: auto;
+  }
+  .contact-intro > .eyebrow,
+  .contact-intro > h1 {
+    text-align: center;
   }
 }
