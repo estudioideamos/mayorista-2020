@@ -3,6 +3,13 @@
   const header = document.querySelector('.header');
   const back = document.querySelector('.back-top');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const careersIntro = document.querySelector('.careers-main .contact-intro');
+  if (careersIntro) {
+    const sizeSticky = () => careersIntro.style.setProperty('--careers-sticky-top', `${Math.min(header.offsetHeight + 24, innerHeight - careersIntro.offsetHeight - 24)}px`);
+    if ('ResizeObserver' in window) new ResizeObserver(sizeSticky).observe(careersIntro);
+    addEventListener('resize', sizeSticky, { passive: true });
+    sizeSticky();
+  }
   let scheduled = false;
   function update() {
     const range = root.scrollHeight - innerHeight;

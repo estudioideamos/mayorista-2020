@@ -12,7 +12,7 @@ También se puede abrir `index.html` directamente. La conexión a Internet permi
 
 - `index.html`: textos, sucursales, enlaces y selector de WhatsApp. Si cambia una sucursal, actualizar también su enlace en el selector.
 - `styles.css`: identidad, tamaños, responsive y animaciones.
-- `app.js`: menú móvil, diálogo accesible y animación de entrada.
+- `app.js`: menú, selector de WhatsApp y marquesinas.
 - `assets/`: logo y fotografías suministrados por el cliente. Los archivos originales de la carpeta m20 no se modifican.
 
 Identidad derivada del logo M20: azul #193e85, naranja #f45b19 y fondo #f8f9fa. Barlow Condensed para titulares y Manrope para lectura. Cortes diagonales e inclinación sutil inspirados en la marca.
@@ -27,11 +27,19 @@ Logo de WhatsApp: archivo de WhatsApp/Meta, conservado sin modificar. Fuente: ht
 
 ## Contacto y novedades
 
-- contacto.html y contacto.js: formulario validado con vista previa. Prepara WhatsApp para la sucursal elegida; no guarda datos ni envía automáticamente. El visitante confirma el envío en WhatsApp.
+- contacto.html y recursos-humanos.html: formularios atendidos por forms.js y enviar.php. Ver configuración del servidor al final.
 - Dos marquesinas continuas con pausa y soporte para movimiento reducido.
 - Instagram oficial revisado: https://www.instagram.com/mayorista2020__/. La biografía confirma venta mayorista y minorista. Canal de novedades publicado en el perfil: https://whatsapp.com/channel/0029Vb828km0lwglWOxds63C. Se conservan direcciones y Maps del brief. No se incorporan promociones ni precios no verificados.
 
 - smooth-scroll.js: inercia para ruedita, multiplicador 0.55 y amortiguación de 160 ms. Mantiene controles, scroll interno, teclado y touch nativos; respeta movimiento reducido.
 
-## Recursos Humanos
-Página recursos-humanos.html enlazada solo desde el footer. recursos-humanos.js prepara un correo a rrhh@m20mayorista.com. El postulante adjunta su CV en su aplicación de correo y confirma el envío allí. La web no almacena postulaciones ni archivos.
+
+## Formularios en el servidor
+
+Contacto y Recursos Humanos usan forms.js y enviar.php, sin servicios externos ni apertura de aplicaciones de correo. Cambiar destinatarios en el arreglo config de enviar.php: info@m20mayorista.com y rrhh@m20mayorista.com.
+
+Para habilitar: subir el sitio completo al hosting con PHP 8+, fileinfo y mail() configurado por el proveedor. Configurar upload_max_filesize >= 5M y post_max_size >= 6M. El dominio debe permitir correo saliente y tener SPF/DKIM según el hosting. No hay credenciales en el proyecto.
+
+En GitHub Pages y localhost los formularios se identifican como vista previa y no envían datos. En el hosting hay que comprobar recepción real de una consulta y un CV PDF antes de dar el envío por operativo. En este entorno no hay PHP instalado: aún no se verificó ejecución ni entrega del correo. La aceptación por mail() no confirma entrega en bandeja de entrada.
+
+El endpoint valida campos y PDF de hasta 5 MB, usa remitente fijo y Reply-To del visitante, rechaza orígenes distintos, incluye campo anti-bots y limita intentos por IP a uno por minuto. No guarda CV ni mensajes permanentemente; los archivos temporales de subida los elimina PHP al terminar. Los registros de limitación contienen solamente una marca de tiempo y usan nombres con hash en la carpeta temporal del servidor.
