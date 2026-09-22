@@ -24,3 +24,11 @@ Los contactos, horarios y direcciones corresponden al brief. No se publican prec
 GitHub Pages publica la rama `main`, carpeta raíz. Los enlaces y recursos usan rutas relativas para funcionar bajo el nombre del repositorio.
 
 Logo de WhatsApp: archivo de WhatsApp/Meta, conservado sin modificar. Fuente: https://commons.wikimedia.org/wiki/File:WhatsApp_Logo_green.svg
+
+## Contacto y novedades
+
+- contacto.html y contacto.js: formulario validado con vista previa. Prepara WhatsApp para la sucursal elegida; no guarda datos ni envía automáticamente. El visitante confirma el envío en WhatsApp.
+- Dos marquesinas continuas con pausa y soporte para movimiento reducido.
+- Instagram oficial revisado: https://www.instagram.com/mayorista2020__/. La biografía confirma venta mayorista y minorista. Canal de novedades publicado en el perfil: https://whatsapp.com/channel/0029Vb828km0lwglWOxds63C. Se conservan direcciones y Maps del brief. No se incorporan promociones ni precios no verificados.
+
+- smooth-scroll.js: inercia para ruedita, multiplicador 0.55 y amortiguación de 160 ms. Mantiene controles, scroll interno, teclado y touch nativos; respeta movimiento reducido.

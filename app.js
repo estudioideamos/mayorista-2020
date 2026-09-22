@@ -34,6 +34,20 @@ dialog.addEventListener('click', event => {
 });
 dialog.addEventListener('close', () => { document.body.style.overflow = ''; });
 document.querySelector('#year').textContent = new Date().getFullYear();
+// Equal-width copies make each marquee loop seamlessly without duplicate screen-reader text.
+document.querySelectorAll('.marquee-track').forEach(track => {
+  const copy = track.firstElementChild.cloneNode(true);
+  copy.setAttribute('aria-hidden', 'true');
+  track.append(copy);
+});
+document.querySelectorAll('.motion-toggle').forEach(button => {
+  button.addEventListener('click', () => {
+    const paused = document.documentElement.classList.toggle('motion-paused');
+    button.setAttribute('aria-pressed', String(paused));
+    button.setAttribute('aria-label', paused ? 'Reanudar animaciones' : 'Pausar animaciones');
+    button.firstElementChild.textContent = paused ? '▶' : 'Ⅱ';
+  });
+});
 if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
   const observer = new IntersectionObserver(entries => entries.forEach(entry => {
     if (entry.isIntersecting) { entry.target.classList.add('reveal'); observer.unobserve(entry.target); }
