@@ -1,0 +1,42 @@
+const menuButton = document.querySelector('.menu-toggle');
+const mobileNav = document.querySelector('#mobile-nav');
+function closeMenu() {
+  menuButton.setAttribute('aria-expanded', 'false');
+  menuButton.setAttribute('aria-label', 'Abrir menú');
+  mobileNav.hidden = true;
+}
+menuButton.addEventListener('click', () => {
+  const expanded = menuButton.getAttribute('aria-expanded') !== 'true';
+  menuButton.setAttribute('aria-expanded', String(expanded));
+  menuButton.setAttribute('aria-label', expanded ? 'Cerrar menú' : 'Abrir menú');
+  mobileNav.hidden = !expanded;
+});
+mobileNav.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && !mobileNav.hidden) { closeMenu(); menuButton.focus(); }
+});
+matchMedia('(min-width: 761px)').addEventListener('change', closeMenu);
+const dialog = document.querySelector('.contact-dialog');
+document.querySelectorAll('[data-contact]').forEach(link => {
+  link.addEventListener('click', event => {
+    if (typeof dialog.showModal !== 'function') return;
+    event.preventDefault();
+    closeMenu();
+    dialog.showModal();
+    document.body.style.overflow = 'hidden';
+  });
+});
+dialog.querySelector('.dialog-close').addEventListener('click', () => dialog.close());
+dialog.addEventListener('click', event => {
+  if (event.target !== dialog) return;
+  const rect = dialog.getBoundingClientRect();
+  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close();
+});
+dialog.addEventListener('close', () => { document.body.style.overflow = ''; });
+document.querySelector('#year').textContent = new Date().getFullYear();
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+  const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) { entry.target.classList.add('reveal'); observer.unobserve(entry.target); }
+  }), { threshold: 0.1 });
+  document.querySelectorAll('.section-heading, .purchase-card, .products-copy, .branch, .closing-inner').forEach(element => observer.observe(element));
+}
