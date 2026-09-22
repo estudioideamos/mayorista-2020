@@ -6,7 +6,7 @@ import postcss from "postcss";
 import cssnano from "cssnano";
 
 // Originals stay in design/; only optimized assets are published.
-for (const name of ["interior", "jcp-1", "jcp-esquina", "moreno", "pilar", "portada"]) {
+for (const name of ["interior", "jcp-1", "jcp-esquina", "moreno", "pilar", "portada", "repositor"]) {
   for (const width of [640, 1200]) {
     await sharp(`design/photos/${name}.jpg`)
       .rotate()
@@ -32,7 +32,7 @@ console.log(
 const digest = (value) =>
   createHash("sha256").update(value).digest("hex").slice(0, 12);
 const dimensions = {};
-for (const name of ["interior", "jcp-1", "jcp-esquina", "moreno", "pilar", "portada"]) {
+for (const name of ["interior", "jcp-1", "jcp-esquina", "moreno", "pilar", "portada", "repositor"]) {
   dimensions[name] = await sharp(`assets/${name}-1200.webp`).metadata();
 }
 for (const file of [
