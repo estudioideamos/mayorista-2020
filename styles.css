@@ -205,7 +205,7 @@ h1 {
   margin-bottom: 24px;
 }
 h1 em {
-  color: #ff925a;
+  color: var(--orange);
   font-style: italic;
   display: inline-block;
 }
@@ -2581,7 +2581,7 @@ h2 em {
   -webkit-text-stroke: 1px #d5e2f7;
 }
 .marquee-orange .marquee-group span:nth-of-type(4) {
-  color: #ff925a;
+  color: var(--orange);
 }
 .marquee-orange .marquee-group b {
   font: 400 30px/1 var(--display);
@@ -3346,7 +3346,7 @@ h2 em {
   margin: 0 0 22px;
 }
 .closing-refined h2 em {
-  color: #ff925a;
+  color: var(--orange);
 }
 .closing-refined .closing-copy > p:not(.eyebrow) {
   font-size: 15px;
@@ -4257,7 +4257,69 @@ h1 em:after {
   }
 }
 /* Tonal corrections preserve the original photographs and signage. */
-.branch-photo img[src*="jcp-1-"] { filter: contrast(1.2) saturate(1.16) brightness(1.02); }
-.branch-photo img[src*="jcp-esquina-"] { filter: brightness(1.08) contrast(1.06) saturate(1.08); }
-.branch-photo img[src*="moreno-"] { filter: brightness(0.96) contrast(1.04) saturate(1.14); }
-.branch-photo img[src*="pilar-"] { filter: brightness(1.16) contrast(1.06) saturate(1.12); }
+.branch-photo img[src*="jcp-1-"] {
+  filter: contrast(1.2) saturate(1.16) brightness(1.02);
+}
+.branch-photo img[src*="jcp-esquina-"] {
+  filter: brightness(1.08) contrast(1.06) saturate(1.08);
+}
+.branch-photo img[src*="moreno-"] {
+  filter: brightness(0.96) contrast(1.04) saturate(1.14);
+}
+.branch-photo img[src*="pilar-"] {
+  filter: brightness(1.16) contrast(1.06) saturate(1.12);
+}
+
+/* Original brand mark and confirmed Sunday hours. */
+.marquee-locations .marquee-brand {
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  background: var(--paper);
+  border-radius: 5px;
+}
+.marquee-locations .marquee-brand .logo-crop {
+  width: 110px;
+  height: 54px;
+}
+.marquee-locations .marquee-brand img {
+  width: 190px;
+  height: auto;
+  left: -40px;
+  top: -97px;
+}
+.sunday-notice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  align-items: center;
+  margin: -12px 0 30px;
+  padding: 18px 22px;
+  border-left: 3px solid var(--orange);
+  background: #f45b190b;
+  color: var(--ink);
+  font-size: 14px;
+}
+.sunday-notice span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.branch-content .branch-sunday {
+  margin-top: 18px;
+  color: var(--blue);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.branch-sunday span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+@media (max-width: 760px) {
+  .sunday-notice {
+    justify-content: center;
+    text-align: center;
+    margin-top: 0;
+    padding: 18px 16px;
+  }
+}

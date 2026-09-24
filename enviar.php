@@ -47,7 +47,7 @@ if ($kind === 'careers') {
     $attachment = file_get_contents($file['tmp_name']);
     if ($attachment === false) respond(500, false, 'No se pudo leer el archivo.');
 } else {
-    $branches = ['jcp1' => 'JCP 1', 'esquina' => 'JCP Esquina', 'moreno' => 'Moreno · Cuartel V', 'pilar' => 'Pilar'];
+    $branches = ['jcp1' => 'José C. Paz Central', 'esquina' => 'José C. Paz Esquina', 'moreno' => 'Moreno · Cuartel V', 'pilar' => 'Pilar'];
     $branch = field('branch', 20);
     if (!isset($branches[$branch])) respond(422, false, 'Elegí una sucursal válida.');
     $format = field('format', 80);

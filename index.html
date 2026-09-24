@@ -11,7 +11,7 @@
     <meta name="theme-color" content="#193e85" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 
-    <link rel="stylesheet" href="styles.min.css?v=c0143131af24" />
+    <link rel="stylesheet" href="styles.min.css?v=52b3a2c7a0fa" />
     <link
       rel="canonical"
       href="https://estudioideamos.github.io/mayorista-2020/"
@@ -20,7 +20,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'sha256-WNPE6wEyAdb8wDZ0AJ5BdIP5zMef2kQl5mCHUG6GF8w='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+      content="default-src 'self'; script-src 'self' 'sha256-W0iQm5OruyEYv+ReQeeXa2yFQOrvoUvRnnVN/fFP/kY='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
     />
     <link rel="stylesheet" href="assets/fonts.css?v=1" />
     <link
@@ -118,7 +118,7 @@
           {
             "@type": "Store",
             "@id": "https://estudioideamos.github.io/mayorista-2020/#sucursal-1",
-            "name": "Mayorista 2020 — JCP 1",
+            "name": "Mayorista 2020 — José C. Paz Central",
             "parentOrganization": {
               "@id": "https://estudioideamos.github.io/mayorista-2020/#organizacion"
             },
@@ -132,12 +132,12 @@
               "addressRegion": "Buenos Aires",
               "addressCountry": "AR"
             },
-            "description": "Bebidas y alimentos. Por unidad, caja cerrada o pallet, sin compra mínima. Horario: 08:00 a 16:00 hs.; consultar días de atención."
+            "description": "Bebidas y alimentos. Por unidad, caja cerrada o pallet, sin compra mínima. Horario habitual: 08:00 a 16:00 hs. Cerrado los domingos."
           },
           {
             "@type": "Store",
             "@id": "https://estudioideamos.github.io/mayorista-2020/#sucursal-2",
-            "name": "Mayorista 2020 — JCP Esquina",
+            "name": "Mayorista 2020 — José C. Paz Esquina",
             "parentOrganization": {
               "@id": "https://estudioideamos.github.io/mayorista-2020/#organizacion"
             },
@@ -151,7 +151,7 @@
               "addressRegion": "Buenos Aires",
               "addressCountry": "AR"
             },
-            "description": "Bebidas y alimentos. Por unidad, caja cerrada o pallet, sin compra mínima. Horario: 08:00 a 16:00 hs.; consultar días de atención."
+            "description": "Bebidas y alimentos. Por unidad, caja cerrada o pallet, sin compra mínima. Horario habitual: 08:00 a 16:00 hs. Cerrado los domingos."
           },
           {
             "@type": "Store",
@@ -170,7 +170,15 @@
               "addressRegion": "Buenos Aires",
               "addressCountry": "AR"
             },
-            "description": "Bebidas y alimentos. Por unidad, caja cerrada o pallet, sin compra mínima. Horario: 08:00 a 16:00 hs.; consultar días de atención."
+            "description": "Bebidas y alimentos. Por unidad, caja cerrada o pallet, sin compra mínima. Horario habitual: 08:00 a 16:00 hs. Única sucursal abierta los domingos, de 08:00 a 14:00 hs.",
+            "openingHoursSpecification": [
+              {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": "https://schema.org/Sunday",
+                "opens": "08:00",
+                "closes": "14:00"
+              }
+            ]
           },
           {
             "@type": "Store",
@@ -189,7 +197,7 @@
               "addressRegion": "Buenos Aires",
               "addressCountry": "AR"
             },
-            "description": "Bebidas y alimentos. Por unidad, caja cerrada o pallet, sin compra mínima. Horario: 08:00 a 16:00 hs.; consultar días de atención."
+            "description": "Bebidas y alimentos. Por unidad, caja cerrada o pallet, sin compra mínima. Horario habitual: 08:00 a 16:00 hs. Cerrado los domingos."
           }
         ]
       }
@@ -530,11 +538,15 @@
           </div>
           <div class="hours">
             <svg class="icon" aria-hidden="true"><use href="#i-clock" /></svg>
-            <p>
-              HORARIO EN TODAS LAS SUCURSALES<strong>08:00 a 16:00 hs.</strong>
-            </p>
+            <p>HORARIO HABITUAL<strong>08:00 a 16:00 hs.</strong></p>
           </div>
         </div>
+        <p class="sunday-notice">
+          <strong>Los domingos, te esperamos en Cuartel V.</strong
+          ><span
+            >De 08:00 a 14:00 hs. · Única sucursal abierta los domingos.</span
+          >
+        </p>
         <div class="branch-grid">
           <article class="branch">
             <div class="branch-photo">
@@ -546,14 +558,14 @@
                 "
                 sizes="(max-width: 760px) 100vw, 50vw"
                 decoding="async"
-                alt="Frente de la sucursal JCP 1"
+                alt="Frente de la sucursal José C. Paz Central"
                 width="1200"
                 height="675"
                 loading="lazy"
               /><span class="branch-index">01 / JOSÉ C. PAZ</span>
             </div>
             <div class="branch-content">
-              <h3>JCP 1</h3>
+              <h3>José C. Paz Central</h3>
               <p>Hipólito Irigoyen 4038</p>
               <div class="branch-actions">
                 <a
@@ -561,14 +573,14 @@
                   href="https://wa.me/5492320598474"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="WhatsApp de JCP 1, +54 9 2320 598474"
+                  aria-label="WhatsApp de José C. Paz Central, +54 9 2320 598474"
                   >WhatsApp <span aria-hidden="true">↗</span></a
                 ><a
                   class="button button-outline"
                   href="https://maps.app.goo.gl/gFyVdV5UYViSh93c6"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Cómo llegar a JCP 1 en Google Maps"
+                  aria-label="Cómo llegar a José C. Paz Central en Google Maps"
                   >Cómo llegar <span aria-hidden="true">↗</span></a
                 >
               </div>
@@ -584,14 +596,14 @@
                 "
                 sizes="(max-width: 760px) 100vw, 50vw"
                 decoding="async"
-                alt="Frente de la sucursal JCP Esquina"
+                alt="Frente de la sucursal José C. Paz Esquina"
                 width="1200"
                 height="900"
                 loading="lazy"
               /><span class="branch-index">02 / JOSÉ C. PAZ</span>
             </div>
             <div class="branch-content">
-              <h3>JCP ESQUINA</h3>
+              <h3>JOSÉ C. PAZ ESQUINA</h3>
               <p>Hipólito 4154 esquina Ballesteros</p>
               <div class="branch-actions">
                 <a
@@ -599,14 +611,14 @@
                   href="https://wa.me/5491172185142"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="WhatsApp de JCP Esquina, +54 9 11 7218 5142"
+                  aria-label="WhatsApp de José C. Paz Esquina, +54 9 11 7218 5142"
                   >WhatsApp <span aria-hidden="true">↗</span></a
                 ><a
                   class="button button-outline"
                   href="https://maps.app.goo.gl/HGRmGigNV7zSQmTS8"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Cómo llegar a JCP Esquina en Google Maps"
+                  aria-label="Cómo llegar a José C. Paz Esquina en Google Maps"
                   >Cómo llegar <span aria-hidden="true">↗</span></a
                 >
               </div>
@@ -632,6 +644,10 @@
             <div class="branch-content">
               <h3>MORENO · CUARTEL V</h3>
               <p>Ruta 24, 9801</p>
+              <p class="branch-sunday">
+                <strong>También los domingos · 08:00 a 14:00 hs.</strong
+                ><span>Única sucursal abierta los domingos.</span>
+              </p>
               <div class="branch-actions">
                 <a
                   class="button button-blue"
@@ -707,7 +723,13 @@
             target="_blank"
             rel="noopener noreferrer"
             ><span class="social-card-top"
-              >INSTAGRAM <img src="assets/instagram.svg" width="38" height="38" alt="" aria-hidden="true" /></span
+              >INSTAGRAM
+              <img
+                src="assets/instagram.svg"
+                width="38"
+                height="38"
+                alt=""
+                aria-hidden="true" /></span
             ><strong>@mayorista2020__</strong
             ><span>Conocé más de M20 y mirá nuestras publicaciones.</span
             ><b>Ver Instagram ↗</b></a
@@ -737,7 +759,16 @@
           <div class="marquee-group">
             <span>JOSÉ C. PAZ</span><b aria-hidden="true">✳</b
             ><span>MORENO</span><b aria-hidden="true">✳</b><span>PILAR</span
-            ><b aria-hidden="true">✳</b><span>TU M20</span
+            ><b aria-hidden="true">✳</b
+            ><span class="marquee-brand"
+              ><span class="logo-crop"
+                ><img
+                  src="assets/logo-original.png"
+                  alt="M20 Mayorista"
+                  width="1080"
+                  height="1350"
+                  loading="lazy"
+                  decoding="async" /></span></span
             ><b aria-hidden="true">✳</b>
           </div>
         </div>
@@ -847,7 +878,8 @@
           <div class="footer-column footer-contact">
             <h2>ESTAMOS CERCA</h2>
             <p class="footer-hours">
-              08:00 a 16:00 hs.<small>En las cuatro sucursales.</small>
+              08:00 a 16:00 hs.<small>Horario habitual.</small
+              ><small>Domingos: solo Cuartel V, de 08:00 a 14:00 hs.</small>
             </p>
             <p>José C. Paz · Moreno · Pilar</p>
             <a class="footer-chat" href="#sucursales" data-contact
@@ -915,7 +947,7 @@
           href="https://wa.me/5492320598474"
           target="_blank"
           rel="noopener noreferrer"
-          ><span>JCP 1<small>Hipólito Irigoyen 4038</small></span
+          ><span>José C. Paz Central<small>Hipólito Irigoyen 4038</small></span
           ><span aria-hidden="true">↗</span></a
         ><a
           class="contact-option"
@@ -923,7 +955,9 @@
           target="_blank"
           rel="noopener noreferrer"
           ><span
-            >JCP Esquina<small>Hipólito 4154 esquina Ballesteros</small></span
+            >José C. Paz Esquina<small
+              >Hipólito 4154 esquina Ballesteros</small
+            ></span
           ><span aria-hidden="true">↗</span></a
         ><a
           class="contact-option"
@@ -941,7 +975,10 @@
           ><span aria-hidden="true">↗</span></a
         >
       </div>
-      <p class="dialog-hours">Te atendemos de 08:00 a 16:00 hs.</p>
+      <p class="dialog-hours">
+        Horario habitual: 08:00 a 16:00 hs.<br />Domingos: solo Cuartel V, de
+        08:00 a 14:00 hs.
+      </p>
     </dialog>
     <svg
       xmlns="http://www.w3.org/2000/svg"
