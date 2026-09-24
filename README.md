@@ -47,7 +47,7 @@ Se probaron ambos flujos contra un SMTP local sin enviar correo externo. Que mai
 
 Las URLs canónicas actuales apuntan a https://estudioideamos.github.io/mayorista-2020/. Al migrar, actualizar canónicas, Open Graph, JSON-LD, sitemap.xml, robots.txt, llms.txt, 404.html y la URL base de scripts/check.mjs. Regenerar con build y volver a comprobar. No apuntar canónicas a un dominio que todavía no publica el sitio.
 
-Datos estructurados: Organization, WebSite, WebPage/ContactPage, cuatro Store y breadcrumbs internos. No se publican precios, stock, vacantes, reseñas ni días de atención no confirmados. El horario habitual es 08:00–16:00 hs. Los domingos abre únicamente Cuartel V, de 08:00 a 14:00 hs.; los demás días no se detallan sin confirmación.
+Datos estructurados: Organization, WebSite, WebPage/ContactPage, cuatro Store y breadcrumbs internos. No se publican precios, stock, vacantes, reseñas ni días de atención no confirmados. El horario de lunes a sábados es 08:00–16:00 hs. Los domingos abre únicamente Cuartel V, de 08:00 a 14:00 hs..
 
 llms.txt resume información confirmada y enlaces oficiales; es complementario y no garantiza que una IA cite el sitio. El contenido principal está disponible sin JavaScript. Google no requiere archivos especiales para sus funciones de IA: https://developers.google.com/search/docs/fundamentals/ai-optimization-guide
 
