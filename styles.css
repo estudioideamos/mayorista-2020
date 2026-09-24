@@ -4304,16 +4304,30 @@ h1 em:after {
   color: var(--muted);
   font-size: 13px;
 }
-.branch-content .branch-sunday {
-  margin-top: 18px;
+.branch-content .branch-hours {
+  margin: 0 0 22px;
+  padding: 0;
   color: var(--blue);
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.65;
 }
-.branch-sunday span {
+.branch-hours strong,
+.branch-hours span,
+.branch-hours small {
   display: block;
+}
+.branch-hours span,
+.branch-hours small {
   color: var(--muted);
   font-size: 12px;
+}
+.branch-hours .branch-hours-sunday {
+  margin-top: 5px;
+  color: var(--blue);
+  font-weight: 700;
+}
+.branch-hours small {
+  margin-top: 2px;
 }
 @media (max-width: 760px) {
   .sunday-notice {
