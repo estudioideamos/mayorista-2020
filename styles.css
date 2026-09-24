@@ -1282,6 +1282,11 @@ h2 em {
   font-size: 27px;
   border-radius: 50%;
 }
+.contact-detail-icon svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
 .contact-detail strong {
   font-size: 17px;
 }
