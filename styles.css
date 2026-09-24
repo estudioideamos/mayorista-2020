@@ -4342,3 +4342,23 @@ h1 em:after {
     padding: 18px 16px;
   }
 }
+
+.branch-hours strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.branch-hours strong span {
+  color: inherit;
+  font-size: inherit;
+}
+.branch-hours-icon {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--orange);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
