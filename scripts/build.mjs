@@ -96,6 +96,7 @@ for (const file of [
 }
 
 // The deployment folder deliberately excludes PHP, originals and development tools.
+await fs.rm("dist", { recursive: true, force: true });
 await fs.mkdir("dist", { recursive: true });
 for (const name of [
   "index.html",

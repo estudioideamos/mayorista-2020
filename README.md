@@ -1,6 +1,6 @@
 # Mayorista 2020
 
-Sitio estático con Inicio, Contacto y Recursos Humanos. HTML semántico, CSS propio y JavaScript sin dependencias en el navegador. Los formularios requieren un hosting PHP para enviar; GitHub Pages es una vista previa.
+Sitio estático con Inicio, Contacto y Recursos Humanos. HTML semántico, CSS propio y JavaScript sin dependencias en el navegador. GitHub Pages es el hosting público de m20mayorista.com. Los formularios requieren un endpoint PHP separado, pendiente de conexión.
 
 ## Desarrollo
 
@@ -33,7 +33,11 @@ GitHub Actions publica únicamente la lista de archivos públicos definida en .g
 
 Después de editar, ejecutar format → build → check y confirmar tanto fuentes como assets generados. El build actualiza hashes de caché y la política CSP del JSON-LD.
 
-## Hosting definitivo y formularios
+## cPanel y formularios propios
+
+El workflow separado `.github/workflows/cpanel.yml` construye y verifica `dist/` y lo copia por SSH a cPanel en cada push a main. Pages sigue activo. Ver [despliegue y arquitectura de formularios](docs/cpanel-deployment.md).
+
+### Referencia del endpoint PHP existente
 
 Subir el contenido de dist/ más enviar.php y .htaccess a un hosting con una versión de PHP mantenida, extensión fileinfo y mail() configurado. Destinatarios en el inicio de enviar.php: Contacto info@m20mayorista.com; RR. HH. rrhh@m20mayorista.com. No hay contraseñas ni secretos en el repositorio.
 
