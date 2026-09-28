@@ -32,7 +32,11 @@ cleanup() {
   rm -rf -- "$temp_dir"
 }
 trap cleanup EXIT
-printf '%s\n' "$CPANEL_SSH_KEY" | tr -d '\r' > "$temp_dir/key"
+# Normalize copy/paste whitespace without ever printing the key.
+printf '%s\n' "$CPANEL_SSH_KEY" | tr -d '\r' | sed 's/[[:blank:]]*$//; /^[[:space:]]*$/d' > "$temp_dir/key"
+if ! grep -Eq '^-----BEGIN (OPENSSH |RSA |EC |ENCRYPTED )?PRIVATE KEY-----$' "$temp_dir/key"; then
+  echo '::error::CPANEL_SSH_KEY must contain a multiline private key, including BEGIN/END headers (not the public key).'; exit 1
+fi
 cat > "$temp_dir/askpass" <<'ASKPASS'
 #!/usr/bin/env bash
 printf '%s\n' "${CPANEL_SSH_PASSPHRASE:-}"
@@ -40,8 +44,15 @@ ASKPASS
 chmod 700 "$temp_dir/askpass"
 eval "$(ssh-agent -s)" >/dev/null
 export SSH_ASKPASS="$temp_dir/askpass" SSH_ASKPASS_REQUIRE=force DISPLAY=:0
-ssh-add "$temp_dir/key" </dev/null >/dev/null 2>&1 || {
-  echo '::error::Cannot load SSH key. Check key format and passphrase.'; exit 1;
+ssh-add "$temp_dir/key" </dev/null >/dev/null 2>"$temp_dir/key-error" || {
+  if grep -qi 'incorrect passphrase\|bad passphrase' "$temp_dir/key-error"; then
+    echo '::error::CPANEL_SSH_PASSPHRASE does not unlock the private key.'
+  elif grep -qi 'libcrypto\|invalid format' "$temp_dir/key-error"; then
+    echo '::error::CPANEL_SSH_KEY is not a valid private key. Copy the complete original private key with real newlines.'
+  else
+    echo '::error::Cannot load SSH key. Check key format and passphrase.'
+  fi
+  exit 1
 }
 unset CPANEL_SSH_KEY CPANEL_SSH_PASSPHRASE
 ssh_args=(-p "$CPANEL_PORT" -o BatchMode=yes -o StrictHostKeyChecking=yes
