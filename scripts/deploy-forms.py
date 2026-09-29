@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import secrets
+import re
 import ssl
 import time
 import urllib.request
@@ -28,6 +29,14 @@ with ftplib.FTP_TLS(context=context,timeout=45) as ftp:
             ftp.mkd(part)
             ftp.cwd(part)
     assert ftp.pwd() in ['/public_html/api/m20','/home3/m20adminpanel/public_html/api/m20']
+    # Remove only stale probes created by this deployment script.
+    for stale in ftp.nlst():
+        if re.fullmatch(r'(?:m20-)?verify-[a-f0-9]{32}\.php', stale):
+            candidate=io.BytesIO()
+            ftp.retrbinary('RETR '+stale,candidate.write)
+            if candidate.getvalue().startswith(b"<?php if (!hash_equals('"):
+                ftp.delete(stale)
+                print('Removed a stale authenticated deployment probe.',flush=True)
     def upload(name, content):
         temporary = '.m20-'+uuid.uuid4().hex+('.php' if name.endswith('.php') else '')
         try:
@@ -66,26 +75,33 @@ with ftplib.FTP_TLS(context=context,timeout=45) as ftp:
     print('Endpoint, security headers and scoped PHP limits uploaded and SHA-256 verified.',flush=True)
     # Temporary authenticated runtime inspection; always removed, no phpinfo exposure.
     key=secrets.token_hex(32)
-    name='verify-'+uuid.uuid4().hex+'.php'
+    name='m20-verify-'+uuid.uuid4().hex+'.php'
     digest=hashlib.sha256(key.encode()).hexdigest()
     php="<?php if (!hash_equals('"+digest+"',hash('sha256',$_SERVER['HTTP_X_M20_VERIFY']??''))) {http_response_code(404);exit;} header('Content-Type: application/json'); header('Cache-Control: no-store'); echo json_encode(['php'=>PHP_VERSION,'mail'=>function_exists('mail'),'fileinfo'=>class_exists('finfo'),'upload'=>ini_get('upload_max_filesize'),'post'=>ini_get('post_max_size'),'display_errors'=>ini_get('display_errors'),'opcache'=>function_exists('opcache_get_status') && opcache_get_status(false)!==false]);"
     upload(name,php.encode())
     try:
         result=None
-        for attempt in range(12):
+        for attempt in range(3):
             try:
                 req=urllib.request.Request('https://forms.m20mayorista.com/'+name,headers={'X-M20-Verify':key})
                 with urllib.request.urlopen(req,timeout=15) as response:
                     result=json.load(response)
                 break
             except Exception:
-                if attempt==11:
+                if attempt==2:
                     raise SystemExit('HTTPS runtime check not ready. Retry once DNS and AutoSSL finish.')
-                time.sleep(10)
+                ftp.voidcmd('NOOP')
+                time.sleep(5)
         print('Runtime: '+json.dumps(result),flush=True)
         assert result['mail'] and result['fileinfo']
         assert result['display_errors'] in ('','0','Off')
         assert result['upload']=='5M' and result['post']=='6M', 'Unexpected PHP upload limits'
     finally:
-        ftp.delete(name)
+        # Reconnect for cleanup: the control connection may have gone idle or failed.
+        with ftplib.FTP_TLS(context=context,timeout=45) as cleanup:
+            cleanup.connect(HOST,9021)
+            cleanup.login(USER,os.environ['CPANEL_FTP_PASSWORD'])
+            cleanup.prot_p()
+            cleanup.cwd('/public_html/api/m20')
+            cleanup.delete(name)
         print('Temporary runtime probe removed.',flush=True)

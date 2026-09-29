@@ -64,6 +64,7 @@ def main():
             if base not in {'/public_html', '/home3/m20adminpanel/public_html'}:
                 raise ValueError('Unexpected FTP target directory')
             print('FTPS authenticated; public_html selected; TLS certificate verified.', flush=True)
+            uploaded = 0
             for name, file in files:
                 stage = f'uploading {name}'
                 ftp.cwd(base)
@@ -73,6 +74,15 @@ def main():
                     except ftplib.error_perm:
                         ftp.mkd(part)
                         ftp.cwd(part)
+                expected_hash = hashlib.sha256(file.read_bytes()).digest()
+                current_hash = hashlib.sha256()
+                try:
+                    ftp.retrbinary('RETR ' + file.name, current_hash.update)
+                    if current_hash.digest() == expected_hash:
+                        continue
+                except ftplib.error_perm as error:
+                    if not str(error).startswith('550'):
+                        raise
                 temporary = '.m20-deploy-' + uuid.uuid4().hex
                 try:
                     with file.open('rb') as data:
@@ -82,6 +92,7 @@ def main():
                     if remote_hash.digest() != hashlib.sha256(file.read_bytes()).digest():
                         raise ValueError('Uploaded file checksum mismatch')
                     ftp.rename(temporary, file.name)
+                    uploaded += 1
                     published_hash = hashlib.sha256()
                     ftp.retrbinary('RETR ' + file.name, published_hash.update)
                     if published_hash.digest() != remote_hash.digest():
@@ -92,7 +103,7 @@ def main():
                     except ftplib.all_errors:
                         pass
                     raise
-            print(f'All {len(files)} public files deployed and read back with matching SHA-256.')
+            print(f'All {len(files)} public files SHA-256 verified; {uploaded} changed files uploaded.')
     except Exception as error:
         # Do not print raw server responses, exceptions or credential values.
         code = str(error)[:3] if isinstance(error, ftplib.Error) and str(error)[:3].isdigit() else type(error).__name__
