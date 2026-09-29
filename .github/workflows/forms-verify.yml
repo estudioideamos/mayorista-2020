@@ -1,6 +1,12 @@
 name: Verify real form delivery
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Send new labelled tests or verify existing test messages
+        type: choice
+        default: send
+        options: [send, existing]
 permissions:
   contents: read
 concurrency:
@@ -16,6 +22,7 @@ jobs:
         with:
           persist-credentials: false
       - env:
+          TEST_MODE: ${{ inputs.mode }}
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
           CPANEL_USER: ${{ secrets.CPANEL_USER }}
           CPANEL_FTP_PASSWORD: ${{ secrets.CPANEL_FTP_PASSWORD }}

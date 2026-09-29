@@ -42,7 +42,12 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=30) as ftp:
             if facts.get('type')!='file' or facts.get('modify','')<'20260929121300':
                 continue
             data=io.BytesIO();ftp.retrbinary('RETR '+name,data.write)
-            msg=email.message_from_bytes(data.getvalue(),policy=policy.default)
+            raw=data.getvalue()
+            print(box+': stored_message_gzip='+str(raw.startswith(b'\x1f\x8b')),flush=True)
+            if raw.startswith(b'\x1f\x8b'):
+                import gzip
+                raw=gzip.decompress(raw)
+            msg=email.message_from_bytes(raw,policy=policy.default)
             subject=str(msg['Subject'])
             if not any(word in subject.lower() for word in ['consulta web','postulación laboral','mail delivery','undelivered']):
                 continue

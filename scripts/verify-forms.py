@@ -2,6 +2,8 @@
 import email
 from email import policy
 import ftplib
+import gzip
+import re
 import io
 import json
 import os
@@ -40,10 +42,12 @@ def send(kind):
         assert result['ok'] is True
     print(kind+': HTTP 200, mail accepted.',flush=True)
 
-send('contact')
-print('Waiting for the deliberate per-IP cooldown before the CV test.',flush=True)
-time.sleep(62)
-send('careers')
+existing=os.environ.get('TEST_MODE')=='existing'
+if not existing:
+    send('contact')
+    print('Waiting for the deliberate per-IP cooldown before the CV test.',flush=True)
+    time.sleep(62)
+    send('careers')
 with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
     ftp.connect(os.environ['CPANEL_HOST'],9021)
     ftp.login(os.environ['CPANEL_USER'],os.environ['CPANEL_FTP_PASSWORD'])
@@ -59,14 +63,17 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
                     entries=list(ftp.mlsd(facts=['type','modify']))
                 except ftplib.error_perm:
                     continue
-                cutoff=time.strftime('%Y%m%d%H%M%S',time.gmtime(started-30))
+                cutoff=time.strftime('%Y%m%d%H%M%S',time.gmtime(started-(7200 if existing else 30)))
                 for name,facts in entries:
                     if facts.get('type')!='file' or facts.get('modify','') < cutoff:
                         continue
                     data=io.BytesIO();ftp.retrbinary('RETR '+name,data.write)
-                    msg=email.message_from_bytes(data.getvalue(),policy=policy.default)
+                    raw=data.getvalue()
+                    if raw.startswith(b'\x1f\x8b'):
+                        raw=gzip.decompress(raw)
+                    msg=email.message_from_bytes(raw,policy=policy.default)
                     text=''.join(part.get_content() for part in msg.walk() if part.get_content_type()=='text/plain')
-                    if marker not in text:
+                    if not (re.search(r'M20-TEST-[a-f0-9]{32}',text) if existing else marker in text):
                         continue
                     attachments=list(msg.iter_attachments())
                     if mailbox=='rrhh':
