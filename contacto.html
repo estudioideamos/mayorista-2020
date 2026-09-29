@@ -20,7 +20,7 @@
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'sha256-odQVQ6/kTBxXjbeNzI4V4Zsg4l2SFGjDzODqo4I2kK0='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+      content="default-src 'self'; script-src 'self' 'sha256-VIz8WnE6+Dm9D6lSKe5KZAWIc1NFNnyjykNapRBzeuc='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://forms.m20mayorista.com; object-src 'none'; base-uri 'self'; form-action 'self' https://forms.m20mayorista.com"
     />
     <link rel="stylesheet" href="assets/fonts.css?v=1" />
     <link
@@ -272,7 +272,7 @@
           <p class="form-lead">Completá los datos y envianos tu consulta.</p>
           <form
             id="contact-form"
-            action="enviar.php"
+            action="https://forms.m20mayorista.com/enviar.php"
             method="post"
             data-mail-form
           >
@@ -612,6 +612,6 @@
     <script src="premium.js?v=2c0e29a61b7a" defer></script>
     <script src="app.js?v=c713b47abd1f" defer></script>
     <script src="smooth-scroll.js?v=60a1227767af" defer></script>
-    <script src="forms.js?v=989764a8ea45" defer></script>
+    <script src="forms.js?v=3f810bb6de3e" defer></script>
   </body>
 </html>

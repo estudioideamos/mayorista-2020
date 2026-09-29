@@ -85,6 +85,7 @@ with ftplib.FTP_TLS(context=context,timeout=45) as ftp:
         print('Runtime: '+json.dumps(result),flush=True)
         assert result['mail'] and result['fileinfo']
         assert result['display_errors'] in ('','0','Off')
+        assert result['upload']=='5M' and result['post']=='6M', 'Unexpected PHP upload limits'
     finally:
         ftp.delete(name)
         print('Temporary runtime probe removed.',flush=True)

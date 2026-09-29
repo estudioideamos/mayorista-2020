@@ -29,33 +29,20 @@ revertir el cambio en main y dejar ejecutar ambos workflows.
 El 28/09 el proveedor confirmó restricciones geográficas para SSH. Por eso se
 reemplazó el transporte por FTPS; no se cambió DNS, correo ni hosting de Pages.
 
-## Formularios: arquitectura pendiente de activación
+## Formularios activos y mantenimiento
 
-El endpoint enviar.php existente dirige contact a info@m20mayorista.com y careers
-a rrhh@m20mayorista.com. Usa mail() local, Reply-To del visitante, validación,
-honeypot, límites por IP/global y PDF hasta 5 MB. El workflow estático excluye PHP
-y .htaccess. No se considera habilitado el envío desde Pages: las acciones actuales
-apuntan a enviar.php relativo, que Pages no ejecuta, incluso con dominio propio.
+Host: https://forms.m20mayorista.com, A 167.250.5.104, raíz /home3/m20adminpanel/public_html/api/m20. Certificado gestionado por AutoSSL. El dominio principal conserva GitHub Pages y fuerza HTTPS.
 
-Para activarlos manteniendo Pages:
+El workflow forms-deploy.yml ejecuta sintaxis PHP y pruebas con correo simulado antes de publicar el backend. Usa solo los secrets FTP y verifica SHA-256. La configuración PHP generada por cPanel se conserva en .htaccess. Una comprobación temporal autenticada verifica PHP, mail(), fileinfo, límites y errores; se elimina al terminar.
 
-1. Confirmar una URL HTTPS propia que llegue a cPanel. forms.m20mayorista.com es
-   una propuesta, no un subdominio configurado por este trabajo. Revisar primero
-   DNS y certificado; no cambiar el dominio público ni MX.
-2. Desplegar el endpoint por separado en el document root de ese host, manteniendo
-   configuración privada fuera del directorio público. Verificar PHP mantenido,
-   fileinfo, mail() y límites de carga del servidor.
-3. Cambiar la comprobación actual de origen del PHP: permitir exclusivamente
-   https://m20mayorista.com y https://www.m20mayorista.com con comparación exacta,
-   responder OPTIONS y CORS con el origen permitido y Vary: Origin, nunca '*'.
-   Revisar Sec-Fetch-Site junto con esta política, sin confiar en CORS como antispam.
-4. Cambiar action en ambos formularios y connect-src/form-action en sus CSP a la
-   URL confirmada; reconstruir y comprobar Pages. Preservar los límites del PHP.
-5. Inspeccionar SPF, DKIM, DMARC y enrutamiento local/remoto en cPanel antes de
-   proponer cambios. Confirmar el remitente autorizado y envelope sender; no
-   inventar cuenta web@ ni credenciales SMTP.
-6. Probar con autorización un mensaje de contacto y una postulación con PDF.
-   Confirmar recepción en ambos buzones y revisar Authentication-Results de los
-   mensajes. mail()=true solo significa aceptación local, no entrega ni bandeja.
+Destinatarios fijos: info@m20mayorista.com y rrhh@m20mayorista.com. Se confirmó la entrega de pruebas identificadas en INBOX el 29/09/2026, incluida la integridad del adjunto PDF. El workflow manual forms-verify.yml permite enviar nuevas pruebas (mode=send) o revisar pruebas recientes existentes (mode=existing). Lee solo mensajes candidatos recientes y no imprime contenido de correo ni contraseñas. Soporta Maildir comprimido.
 
-No se cambian DNS, MX, SPF, DKIM, DMARC ni configuración de correo con este workflow.
+CPANEL_API_TOKEN se usa solo para administración e inspección manual. No se necesita para los despliegues recurrentes; puede caducar al terminar esta configuración. La contraseña FTP sigue siendo necesaria para publicar.
+
+Optimización de cPanel: caché de estáticos por 24 horas, HTML revalidado, compresión de texto, bloqueo de listados y cabeceras de seguridad. cpanel-optimize.yml preserva directivas existentes y guarda la configuración previa en /m20-config-backups fuera de public_html si existía. No se modifican archivos ajenos al sitio.
+
+PHP efectivo en formularios: upload_max_filesize=5M, post_max_size=6M, memory_limit=128M, max_execution_time=30, max_input_time=60, max_input_vars=40; display_errors=Off y log_errors=On. OPcache no está activo en el hosting; no se cambió el motor global ni configuraciones de otras cuentas. El backend aplica además sus propios límites y política de origen.
+
+Correo: casillas activas, enrutamiento local, SPF y DKIM validados por cPanel. DMARC conserva p=none. No se modificaron MX ni políticas de autenticación existentes. Las pruebas locales confirman llegada a estas dos casillas, no garantizan ausencia universal de spam.
+
+Para revertir una versión del endpoint, revertir el commit correspondiente en main: el workflow vuelve a probar y desplegar. Para cambiar destinatarios, hacerlo en enviar.php, revisar las pruebas y validar recepción real. Nunca guardar credenciales en PHP, en dist ni en archivos del repositorio.

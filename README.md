@@ -1,6 +1,6 @@
 # Mayorista 2020
 
-Sitio estático con Inicio, Contacto y Recursos Humanos. HTML semántico, CSS propio y JavaScript sin dependencias en el navegador. GitHub Pages es el hosting público de m20mayorista.com. Los formularios requieren un endpoint PHP separado, pendiente de conexión.
+Sitio estático con Inicio, Contacto y Recursos Humanos. HTML semántico, CSS propio y JavaScript sin dependencias en el navegador. GitHub Pages es el hosting público de m20mayorista.com. Los formularios envían directamente a las casillas de M20 mediante https://forms.m20mayorista.com/enviar.php, alojado en cPanel.
 
 ## Desarrollo
 
@@ -37,15 +37,15 @@ Después de editar, ejecutar format → build → check y confirmar tanto fuente
 
 El workflow separado `.github/workflows/cpanel.yml` construye y verifica `dist/` y lo copia por FTPS cifrado (puerto 9021) a cPanel en cada push a main. Pages sigue activo. Ver [despliegue y arquitectura de formularios](docs/cpanel-deployment.md).
 
-### Referencia del endpoint PHP existente
+### Formularios activos
 
-Subir el contenido de dist/ más enviar.php y .htaccess a un hosting con una versión de PHP mantenida, extensión fileinfo y mail() configurado. Destinatarios en el inicio de enviar.php: Contacto info@m20mayorista.com; RR. HH. rrhh@m20mayorista.com. No hay contraseñas ni secretos en el repositorio.
+Contacto → info@m20mayorista.com. Trabajá con nosotros → rrhh@m20mayorista.com, con CV PDF hasta 5 MB. Envío por el servidor local de M20, sin intermediarios. Reply-To usa el correo del visitante; remitente y envelope sender usan info@m20mayorista.com.
 
-Configurar upload_max_filesize >= 5M y post_max_size >= 6M, HTTPS, SPF/DKIM y limitación de solicitudes en el hosting. Apache debe permitir las directivas de .htaccess; con Nginx el proveedor debe trasladar las cabeceras y caché a su configuración. No subir el repositorio entero ni la carpeta .git.
+El workflow forms-deploy.yml prueba y despliega enviar.php y la configuración propia del backend en public_html/api/m20, separado de dist/ y de Pages. Las páginas permiten únicamente ese endpoint HTTPS en su CSP. El backend solo acepta los orígenes HTTPS de m20mayorista.com y www.m20mayorista.com.
 
-Los formularios rechazan origen externo, cabeceras inyectadas, campos inválidos y archivos no PDF. Límite: un intento por IP por minuto y 100 intentos globales por hora. Solo se guardan contadores temporales, no mensajes ni CV. El archivo se adjunta como curriculum.pdf. La validación MIME no equivale a un antivirus: el servidor/buzón debe escanear adjuntos. No abrir archivos sospechosos. El hosting debe mantener PHP y el servidor actualizados.
+Validaciones de campos, honeypot, tiempo mínimo, límite de un intento por IP/minuto y 100 por hora, comprobación de MIME/tamaño del PDF y cabeceras sin caché. PHP 8.3; límites efectivos: carga 5M, POST 6M y memoria 128M. Los errores se registran sin mostrarse al visitante. No se almacenan CV ni mensajes fuera de las casillas; solo contadores temporales.
 
-Se probaron ambos flujos contra un SMTP local sin enviar correo externo. Que mail() acepte un mensaje no garantiza recepción. Comprobar una consulta y un CV reales después del despliegue. Pages no ejecuta PHP y avisa que el envío no está habilitado.
+El 29/09/2026 se confirmó la recepción real de ambas pruebas en INBOX, con Reply-To correcto y PDF adjunto en RR. HH. SPF y DKIM figuran válidos en cPanel; DMARC conserva p=none. La entrega local no incorpora firma DKIM, por lo que estas pruebas no certifican la entregabilidad a proveedores externos.
 
 ## SEO, IA y dominio
 

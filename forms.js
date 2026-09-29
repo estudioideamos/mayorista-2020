@@ -1,4 +1,10 @@
 document.querySelectorAll("[data-mail-form]").forEach((form) => {
+  const started = document.createElement("input");
+  started.type = "hidden";
+  started.name = "started_at";
+  const resetStarted = () => { started.value = String(Math.floor(Date.now() / 1000)); };
+  resetStarted();
+  form.append(started);
   const status = form.querySelector(".form-status");
   const button = form.querySelector("[type=submit]");
   const preview =
@@ -56,6 +62,7 @@ document.querySelectorAll("[data-mail-form]").forEach((form) => {
           data.message || "No pudimos enviar el formulario. Intentá más tarde.",
         );
       form.reset();
+      resetStarted();
       show(data.message, "success");
     } catch (error) {
       show(
