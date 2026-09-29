@@ -1159,7 +1159,12 @@ h2 em {
   }
 }
 .hero-copy h1 {
-  animation: enter 0.75s both;
+  animation: title-enter 0.75s both;
+}
+/* Show the main message immediately while retaining its gentle entrance. */
+@keyframes title-enter {
+  from { transform: translateY(18px); }
+  to { transform: translateY(0); }
 }
 .hero-copy .hero-description {
   animation: enter 0.75s 0.12s both;
@@ -1222,7 +1227,7 @@ h2 em {
   box-shadow: 0 18px 40px #14294d16;
 }
 .header nav [aria-current="page"] {
-  color: var(--orange);
+  color: #b83e09;
 }
 .motion-paused .marquee-track,
 .motion-paused .hero-photo,
