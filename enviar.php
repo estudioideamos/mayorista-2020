@@ -10,12 +10,24 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');
-header("Content-Security-Policy: default-src 'none'; frame-ancestors 'none'");
+header("Content-Security-Policy: default-src 'none'; frame-ancestors 'none'; base-uri 'none'");
 function respond(int $code, bool $ok, string $message): void {
     http_response_code($code);
     echo json_encode(['ok' => $ok, 'message' => $message], JSON_UNESCAPED_UNICODE);
     exit;
 }
+// Log operational events only: never names, addresses, IPs, messages or CVs.
+function auditEvent(string $event): void {
+    error_log('[m20-forms] ' . $event);
+}
+function unavailable(string $event): void {
+    auditEvent($event);
+    respond(503, false, 'El envío no está disponible. Intentá más tarde.');
+}
+set_exception_handler(function (Throwable $error): void {
+    unavailable('unexpected_' . get_class($error));
+});
+
 function field(string $name, int $max, bool $required = true): string {
     $value = $_POST[$name] ?? '';
     if (!is_string($value)) respond(422, false, 'Revisá los datos del formulario.');
@@ -68,22 +80,38 @@ if ($kind === 'careers') {
     if (!in_array($format, ['Por unidad', 'Caja cerrada', 'Por pallet', 'Quiero consultar'], true)) respond(422, false, 'Elegí una forma de compra válida.');
     $body .= 'Comercio: ' . field('business', 300, false) . "\nSucursal: " . $branches[$branch] . "\nForma de compra: $format\n\n" . field('message', 6000);
 }
-// Short per-IP cooldown, outside the public site; no CV or message stored on disk.
-$ratePath = sys_get_temp_dir() . '/m20-form-' . hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . __DIR__);
-$lock = @fopen($ratePath, 'c+');
-if (!$lock || !flock($lock, LOCK_EX)) respond(503, false, 'El envío no está disponible. Intentá más tarde.');
-$last = (int)stream_get_contents($lock);
-if ($last > time() - 60) { fclose($lock); respond(429, false, 'Esperá un minuto antes de volver a enviar.'); }
-ftruncate($lock, 0); rewind($lock); fwrite($lock, (string)time()); fflush($lock); flock($lock, LOCK_UN); fclose($lock);
-// Bound outgoing volume across IPs. The hosting should also enforce request limits.
-$globalPath = sys_get_temp_dir() . '/m20-global-' . hash('sha256', __DIR__);
-$globalLock = @fopen($globalPath, 'c+');
-if (!$globalLock || !flock($globalLock, LOCK_EX)) respond(503, false, 'El envío no está disponible. Intentá más tarde.');
-$rate = json_decode(stream_get_contents($globalLock), true);
-$hour = (int)floor(time() / 3600);
-$count = is_array($rate) && ($rate['hour'] ?? 0) === $hour ? (int)($rate['count'] ?? 0) : 0;
-if ($count >= 100) { fclose($globalLock); respond(429, false, 'Se alcanzó el límite de envíos. Intentá más tarde.'); }
-ftruncate($globalLock, 0); rewind($globalLock); fwrite($globalLock, json_encode(['hour' => $hour, 'count' => $count + 1])); fflush($globalLock); flock($globalLock, LOCK_UN); fclose($globalLock);
+// One bounded, private state file: atomic global/IP reservation, no IP stored in clear.
+$stateDir = sys_get_temp_dir() . '/m20-forms-' . hash('sha256', __DIR__);
+if (is_link($stateDir) || (!is_dir($stateDir) && !@mkdir($stateDir, 0700) && !is_dir($stateDir))) unavailable('rate_directory_unavailable');
+if (!@chmod($stateDir, 0700)) unavailable('rate_directory_permissions');
+$statePath = $stateDir . '/state.json';
+if (is_link($statePath)) unavailable('rate_state_link');
+$lock = @fopen($statePath, 'c+');
+if (!$lock || !@chmod($statePath, 0600) || !flock($lock, LOCK_EX)) unavailable('rate_lock_unavailable');
+$raw = stream_get_contents($lock, 32769);
+if ($raw === false || strlen($raw) > 32768) unavailable('rate_state_unreadable');
+$now = time();
+$hour = (int)floor($now / 3600);
+$state = $raw === '' ? ['hour' => $hour, 'count' => 0, 'recent' => []] : json_decode($raw, true, 8, JSON_THROW_ON_ERROR);
+if (!is_array($state) || !is_int($state['hour'] ?? null) || !is_int($state['count'] ?? null) || $state['count'] < 0 || !is_array($state['recent'] ?? null)) unavailable('rate_state_invalid');
+foreach ($state['recent'] as $key => $stamp) {
+    if (!is_string($key) || !preg_match('/^[a-f0-9]{64}$/D', $key) || !is_int($stamp)) unavailable('rate_state_invalid');
+    if ($stamp <= $now - 60) unset($state['recent'][$key]);
+}
+if ($state['hour'] !== $hour) { $state['hour'] = $hour; $state['count'] = 0; }
+$client = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . __DIR__);
+if (isset($state['recent'][$client]) || $state['count'] >= 100) {
+    $retry = isset($state['recent'][$client]) ? max(1, 60 - ($now - $state['recent'][$client])) : 3600 - ($now % 3600);
+    fclose($lock);
+    header('Retry-After: ' . $retry);
+    respond(429, false, 'Se alcanzó el límite de envíos. Esperá un momento antes de reintentar.');
+}
+$state['count']++;
+$state['recent'][$client] = $now;
+$encoded = json_encode($state, JSON_THROW_ON_ERROR);
+if (!ftruncate($lock, 0) || !rewind($lock) || fwrite($lock, $encoded) !== strlen($encoded) || !fflush($lock)) unavailable('rate_state_write_failed');
+flock($lock, LOCK_UN);
+fclose($lock);
 $subject = $kind === 'careers' ? 'Postulación laboral - Mayorista 2020' : 'Consulta web - Mayorista 2020';
 $headers = "From: Mayorista 2020 <{$config['from']}>\r\nReply-To: $email\r\nMIME-Version: 1.0\r\n";
 if ($attachment !== null) {
@@ -95,5 +123,6 @@ if ($attachment !== null) {
     $headers .= "Content-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64";
     $message = chunk_split(base64_encode($body));
 }
-if (!function_exists('mail') || !@mail($config[$kind], '=?UTF-8?B?' . base64_encode($subject) . '?=', $message, $headers, '-f' . $config['from'])) respond(503, false, 'El servidor no pudo enviar el mensaje. Intentá más tarde.');
+if (!function_exists('mail') || !@mail($config[$kind], '=?UTF-8?B?' . base64_encode($subject) . '?=', $message, $headers, '-f' . $config['from'])) unavailable('mail_failed_' . $kind);
+auditEvent('mail_accepted_' . $kind);
 respond(200, true, $kind === 'careers' ? 'Tu postulación fue enviada. Gracias por compartir tu CV.' : 'Tu consulta fue enviada. Gracias por escribirnos.');

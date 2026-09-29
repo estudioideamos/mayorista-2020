@@ -6,7 +6,7 @@ import sharp from "sharp";
 import postcss from "postcss";
 
 const pages = ["index.html", "contacto.html", "recursos-humanos.html"];
-const base = "https://estudioideamos.github.io/mayorista-2020/";
+const base = "https://m20mayorista.com/";
 for (const file of pages) {
   const html = await fs.readFile(file, "utf8");
   assert.equal((html.match(/<h1\b/g) || []).length, 1, `${file}: one H1`);
@@ -27,6 +27,16 @@ for (const file of pages) {
   assert(html.includes(`'sha256-${hash}'`), `${file}: CSP hash`);
   for (const image of html.matchAll(/<img\b[^>]*>/g))
     assert(/alt="[^"]*"/.test(image[0]), `${file}: image alternative text`);
+  for (const set of html.matchAll(/srcset="([^"]+)"/g)) {
+    let lastWidth = 0;
+    for (const candidate of set[1].split(",")) {
+      const [asset, descriptor] = candidate.trim().split(/\s+/);
+      const expected = Number(descriptor.replace(/w$/, ""));
+      assert(expected > lastWidth, `${file}: increasing srcset widths`);
+      assert.equal((await sharp(asset).metadata()).width, expected, `${file}: srcset dimensions`);
+      lastWidth = expected;
+    }
+  }
   for (const m of html.matchAll(/(?:src|href|action)="([^"]+)"/g)) {
     const ref = m[1];
     if (/^(https?:|data:)/.test(ref)) continue;

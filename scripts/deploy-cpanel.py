@@ -21,7 +21,7 @@ def public_files(root):
         if not file.is_file():
             continue
         name = file.relative_to(root).as_posix()
-        asset = name.startswith('assets/') and (file.suffix in {'.webp', '.jpg', '.png', '.svg', '.woff2', '.css'} or re.fullmatch(r'OFL(?:-[A-Za-z]+)?\.txt', file.name))
+        asset = name.startswith('assets/') and (file.suffix in {'.avif', '.webp', '.jpg', '.png', '.svg', '.woff2', '.css'} or re.fullmatch(r'OFL(?:-[A-Za-z]+)?\.txt', file.name))
         if not re.fullmatch(r'[A-Za-z0-9_./-]+', name) or any(part.startswith('.') for part in name.split('/') if part != '.nojekyll') or (name not in PUBLIC and not asset):
             raise ValueError('Unexpected file in public output')
         files.append((name, file))

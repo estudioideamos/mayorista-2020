@@ -4411,3 +4411,7 @@ h1 em:after {
     padding-inline: 7px;
   }
 }
+
+/* Preserve image layout while allowing efficient format negotiation. */
+.optimized-picture { display: contents; }
+.products-copy h2 em { color: #d64a0b; }

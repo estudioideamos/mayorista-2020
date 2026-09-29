@@ -3,9 +3,9 @@
 > Mayorista y minorista de bebidas y alimentos en José C. Paz, Moreno y Pilar, Buenos Aires, Argentina. Compra por unidad, caja cerrada o pallet, sin compra mínima.
 
 ## Páginas oficiales
-- [Inicio y sucursales](https://estudioideamos.github.io/mayorista-2020/)
-- [Contacto](https://estudioideamos.github.io/mayorista-2020/contacto.html)
-- [Trabajá con nosotros](https://estudioideamos.github.io/mayorista-2020/recursos-humanos.html)
+- [Inicio y sucursales](https://m20mayorista.com/)
+- [Contacto](https://m20mayorista.com/contacto.html)
+- [Trabajá con nosotros](https://m20mayorista.com/recursos-humanos.html)
 
 ## Información confirmada
 - Bebidas y alimentos. Incorporación de lácteos, congelados y nuevas categorías; consultar disponibilidad.

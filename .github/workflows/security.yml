@@ -1,18 +1,15 @@
-name: Deploy public site to cPanel
+name: Security and integrity checks
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
-concurrency:
-  group: cpanel-production
-  cancel-in-progress: false
 jobs:
-  deploy:
-    if: github.ref == 'refs/heads/main'
+  verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
@@ -25,10 +22,6 @@ jobs:
       - run: npm audit --audit-level=high
       - run: npm run build
       - run: npm run check
-      - name: Deploy and verify public files over FTPS
-        shell: bash
-        env:
-          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
-          CPANEL_USER: ${{ secrets.CPANEL_USER }}
-          CPANEL_FTP_PASSWORD: ${{ secrets.CPANEL_FTP_PASSWORD }}
-        run: python3 scripts/deploy-cpanel.py
+      - run: python3 scripts/deploy-cpanel.py --check
+      - run: php -l enviar.php
+      - run: python3 scripts/test-forms.py

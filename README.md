@@ -49,13 +49,13 @@ El 29/09/2026 se confirmó la recepción real de ambas pruebas en INBOX, con Rep
 
 ## SEO, IA y dominio
 
-Las URLs canónicas actuales apuntan a https://estudioideamos.github.io/mayorista-2020/. Al migrar, actualizar canónicas, Open Graph, JSON-LD, sitemap.xml, robots.txt, llms.txt, 404.html y la URL base de scripts/check.mjs. Regenerar con build y volver a comprobar. No apuntar canónicas a un dominio que todavía no publica el sitio.
+El dominio público es https://m20mayorista.com/, servido por GitHub Pages. Canónicas, Open Graph, JSON-LD, sitemap, robots, llms y validaciones usan ese dominio. Regenerar con build después de editar contenido.
 
 Datos estructurados: Organization, WebSite, WebPage/ContactPage, cuatro Store y breadcrumbs internos. No se publican precios, stock, vacantes, reseñas ni días de atención no confirmados. El horario de lunes a sábados es 08:00–16:00 hs. Los domingos abre únicamente Cuartel V, de 08:00 a 14:00 hs..
 
 llms.txt resume información confirmada y enlaces oficiales; es complementario y no garantiza que una IA cite el sitio. El contenido principal está disponible sin JavaScript. Google no requiere archivos especiales para sus funciones de IA: https://developers.google.com/search/docs/fundamentals/ai-optimization-guide
 
-robots.txt solo rige cuando está en la raíz del dominio. En Pages bajo /mayorista-2020/, no controla los rastreadores del dominio estudioideamos.github.io; sitemap y metadatos sí siguen disponibles. Registrar el sitemap y verificar indexación en Search Console cuando el propietario tenga acceso.
+robots.txt y sitemap.xml se publican en la raíz de m20mayorista.com. Registrar el sitemap y verificar indexación en Search Console cuando el propietario tenga acceso.
 
 ## Portada social
 

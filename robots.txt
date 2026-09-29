@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 Disallow: /enviar.php
-Sitemap: https://estudioideamos.github.io/mayorista-2020/sitemap.xml
+Sitemap: https://m20mayorista.com/sitemap.xml

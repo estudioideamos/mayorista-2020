@@ -25,8 +25,8 @@ with tempfile.TemporaryDirectory(prefix='m20-forms-test-') as folder:
         sock.bind(('127.0.0.1', 0))
         port = sock.getsockname()[1]
     process = subprocess.Popen(['php', '-d', 'sendmail_path='+str(sink), '-d', 'display_errors=0', '-S', f'127.0.0.1:{port}', '-t', str(root)], env={**os.environ, 'M20_TEST_MAIL':str(mail)}, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    rate = Path(tempfile.gettempdir()) / ('m20-form-' + hashlib.sha256(('127.0.0.1'+str(root)).encode()).hexdigest())
-    global_rate = Path(tempfile.gettempdir()) / ('m20-global-' + hashlib.sha256(str(root).encode()).hexdigest())
+    state_dir = Path(tempfile.gettempdir()) / ('m20-forms-' + hashlib.sha256(str(root).encode()).hexdigest())
+    state_file = state_dir / 'state.json'
     def request(fields=None, origin=ORIGIN, method='POST', pdf=None):
         boundary = 'm20-test-boundary'
         body = b''
@@ -68,7 +68,11 @@ with tempfile.TemporaryDirectory(prefix='m20-forms-test-') as folder:
         msg = email.message_from_bytes(mail.read_bytes(), policy=policy.default)
         assert msg['To'] == 'info@m20mayorista.com' and msg['Reply-To'] == 'info@m20mayorista.com'
         assert request(contact)[0] == 429
-        rate.unlink(missing_ok=True)
+        state_file.write_text('{corrupted')
+        assert request(contact)[0] == 503, 'Corrupted rate state must fail closed'
+        state_file.write_text(json.dumps({'hour':int(time.time()//3600),'count':100,'recent':{}}))
+        assert request(contact)[0] == 429, 'Global hourly cap must be enforced'
+        state_file.write_text(json.dumps({'hour':int(time.time()//3600),'count':1,'recent':{}}))
         careers = dict(common, kind='careers', phone='000', area='Prueba', profile='CV de prueba sin datos reales')
         assert request(careers, pdf=b'not a pdf')[0] == 422
         assert request(careers, pdf=b'%PDF-1.4\n'+b'x'*(5*1024*1024))[0] == 422
@@ -78,9 +82,8 @@ with tempfile.TemporaryDirectory(prefix='m20-forms-test-') as folder:
         assert msg['To'] == 'rrhh@m20mayorista.com'
         attachments = list(msg.iter_attachments())
         assert len(attachments) == 1 and attachments[0].get_filename() == 'curriculum.pdf'
-        print('PHP forms: CORS, preflight, validation, honeypot, timing, cooldown, recipients and PDF attachment passed.')
+        print('PHP forms: CORS, preflight, validation, honeypot, timing, cooldown, global cap, corrupted-state safety, recipients and PDF attachment passed.')
     finally:
         process.terminate()
         process.wait(timeout=5)
-        rate.unlink(missing_ok=True)
-        global_rate.unlink(missing_ok=True)
+        shutil.rmtree(state_dir, ignore_errors=True)

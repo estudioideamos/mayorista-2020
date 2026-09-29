@@ -23,19 +23,25 @@ for (const name of [
   "repositor",
   "salon",
 ]) {
-  for (const width of [640, 1200]) {
+  for (const width of [640, 900, 1200]) {
     await sharp(`design/photos/${name}.jpg`)
       .rotate()
       .resize({ width, withoutEnlargement: true })
       .webp({ quality: 78, effort: 6 })
       .toFile(`assets/${name}-${width}.webp`);
+    await sharp(`design/photos/${name}.jpg`)
+      .rotate()
+      .resize({ width, withoutEnlargement: true })
+      .avif({ quality: 50, effort: 4 })
+      .toFile(`assets/${name}-${width}.avif`);
   }
 }
 await sharp("design/social/m20-share-source.png")
   .resize(1200, 630, { fit: "contain", background: "#102d67" })
   .jpeg({ quality: 86, mozjpeg: true })
   .toFile("assets/m20-social.jpg");
-const css = await fs.readFile("styles.css", "utf8");
+const fontCss = (await fs.readFile("assets/fonts.css", "utf8")).replace(/url\((["']?)fonts\//g, "url($1assets/fonts/");
+const css = fontCss + "\n" + await fs.readFile("styles.css", "utf8");
 const result = await postcss([cssnano({ preset: "default" })]).process(css, {
   from: "styles.css",
   to: "styles.min.css",
@@ -67,14 +73,23 @@ for (const file of [
   "404.html",
 ]) {
   let html = await fs.readFile(file, "utf8");
+  html = html.replace(/<picture class="optimized-picture"><source[^>]*>(<img\b[^>]*>)<\/picture>/g, "$1");
+  html = html.replace(/<link rel="stylesheet" href="assets\/fonts\.css\?v=1" \/>\s*/g, "");
   html = html.replace(/<img\b[^>]*>/g, (tag) => {
     const name = tag.match(/src="assets\/([^"/]+)-1200\.webp"/)?.[1];
     if (!dimensions[name]) return tag;
     const { width, height } = dimensions[name];
-    return tag
+    const candidates = [...new Set([Math.min(640, width), Math.min(900, width), width])];
+    const srcset = (format) => candidates.map((actual) => {
+      const nominal = actual <= 640 ? 640 : actual <= 900 ? 900 : 1200;
+      return `assets/${name}-${nominal}.${format} ${actual}w`;
+    }).join(", ");
+    const sizes = tag.match(/sizes="([^"]*)"/)?.[1] || "100vw";
+    const img = tag
       .replace(/width="\d+"/, `width="${width}"`)
       .replace(/height="\d+"/, `height="${height}"`)
-      .replace(new RegExp(`(${name}-1200\\.webp)\\s+\\d+w`), `$1 ${width}w`);
+      .replace(/srcset="[^"]*"/, `srcset="${srcset("webp")}"`);
+    return `<picture class="optimized-picture"><source type="image/avif" srcset="${srcset("avif")}" sizes="${sizes}">${img}</picture>`;
   });
   html = html.replace(
     /styles\.min\.css\?v=[\w]+/g,
