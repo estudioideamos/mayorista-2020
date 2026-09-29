@@ -21,7 +21,7 @@ def api(module, function, **params):
         with urllib.request.urlopen(req, timeout=30) as response:
             data = json.load(response)
         if data.get('status') != 1:
-            print(module + '/' + function + ': API unavailable', flush=True)
+            print(module + '/' + function + ': API unavailable: ' + str(data.get('errors'))[:500], flush=True)
             return None
         return data.get('data')
     except Exception as error:
@@ -30,6 +30,7 @@ def api(module, function, **params):
 
 for module, function, params in [
     ('DomainInfo', 'list_domains', {}),
+    ('LangPHP', 'php_ini_get_user_basic_directives', {'type':'vhost','vhost':'forms.m20mayorista.com'}),
     ('LangPHP', 'php_get_vhost_versions', {}),
     ('EmailAuth', 'validate_current_spfs', {'domain':'m20mayorista.com'}),
     ('EmailAuth', 'validate_current_dkims', {'domain':'m20mayorista.com'}),
