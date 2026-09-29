@@ -5,6 +5,13 @@ import sharp from "sharp";
 import postcss from "postcss";
 import cssnano from "cssnano";
 
+// Keep CSP and cache digests identical on Windows and Linux, including Pages.
+for (const source of ["index.html", "contacto.html", "recursos-humanos.html", "404.html", "app.js", "premium.js", "smooth-scroll.js", "forms.js"]) {
+  const original = await fs.readFile(source, "utf8");
+  const normalized = original.replace(/\r\n/g, "\n");
+  if (original !== normalized) await fs.writeFile(source, normalized);
+}
+
 // Originals stay in design/; only optimized assets are published.
 for (const name of [
   "interior",
