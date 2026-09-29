@@ -38,4 +38,6 @@ with ftplib.FTP_TLS(context=ssl.create_default_context(),timeout=45) as ftp:
     check=hashlib.sha256();ftp.retrbinary('RETR '+temp,check.update)
     assert check.digest()==hashlib.sha256(content).digest()
     ftp.rename(temp,'.htaccess')
+    published=hashlib.sha256();ftp.retrbinary('RETR .htaccess',published.update)
+    assert published.digest()==hashlib.sha256(content).digest()
     print('Static cache, text compression, directory-listing protection and security headers configured; existing directives preserved.',flush=True)

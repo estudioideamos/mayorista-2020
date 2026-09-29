@@ -1,12 +1,15 @@
 # Apache hosting only. GitHub Pages ignores this file.
 Options -Indexes
+<IfModule mod_mime.c>
+  AddType image/avif .avif
+</IfModule>
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "DENY"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
   Header always set Content-Security-Policy "frame-ancestors 'none'"
-  <FilesMatch "\.(woff2|webp|jpg|svg|css|js)$">
+  <FilesMatch "\.(woff2|avif|webp|jpg|png|svg|css|js)$">
     Header set Cache-Control "public, max-age=604800"
   </FilesMatch>
   <FilesMatch "\.(html|txt|xml)$">
