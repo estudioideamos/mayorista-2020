@@ -1,0 +1,20 @@
+name: Inspect cPanel configuration
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Inspect account through authenticated HTTPS
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          CPANEL_FTP_PASSWORD: ${{ secrets.CPANEL_FTP_PASSWORD }}
+        run: python3 scripts/inspect-cpanel.py
