@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-// Change recipients here. This file must run on the final PHP hosting, not Pages.
+// Fixed recipients; deployed only on the M20 PHP hosting.
 $config = [
     'contact' => 'info@m20mayorista.com',
     'careers' => 'rrhh@m20mayorista.com',
@@ -23,12 +23,26 @@ function field(string $name, int $max, bool $required = true): string {
     if (($required && $value === '') || strlen($value) > $max || !preg_match('//u', $value) || str_contains($value, "\0")) respond(422, false, 'Revisá los campos obligatorios y la longitud de tu mensaje.');
     return $value;
 }
-if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') { header('Allow: POST'); respond(405, false, 'Método no permitido.'); }
-if (($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '') === 'cross-site') respond(403, false, 'Origen no permitido.');
-if ((int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 6 * 1024 * 1024) respond(413, false, 'El archivo debe ser un PDF de hasta 5 MB.');
+$allowedOrigins = ['https://m20mayorista.com', 'https://www.m20mayorista.com'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($origin !== '' && strcasecmp((string)parse_url($origin, PHP_URL_HOST), explode(':', $_SERVER['HTTP_HOST'] ?? '')[0]) !== 0) respond(403, false, 'Origen no permitido.');
+header('Vary: Origin');
+if (!in_array($origin, $allowedOrigins, true)) respond(403, false, 'Origen no permitido.');
+header('Access-Control-Allow-Origin: ' . $origin);
+$method = $_SERVER['REQUEST_METHOD'] ?? '';
+if ($method === 'OPTIONS') {
+    if (($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] ?? '') !== 'POST') respond(405, false, 'Método no permitido.');
+    header('Access-Control-Allow-Methods: POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Accept');
+    header('Access-Control-Max-Age: 600');
+    http_response_code(204);
+    exit;
+}
+if ($method !== 'POST') { header('Allow: POST, OPTIONS'); respond(405, false, 'Método no permitido.'); }
+if ((int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 6 * 1024 * 1024) respond(413, false, 'El archivo debe ser un PDF de hasta 5 MB.');
+if (!$_POST) respond(422, false, 'No recibimos los datos. Revisá el tamaño del archivo e intentá otra vez.');
 if (field('website', 500, false) !== '') respond(422, false, 'No se pudo enviar el formulario.');
+$started = field('started_at', 16);
+if (!ctype_digit($started) || (int)$started > time() - 3 || (int)$started < time() - 86400) respond(422, false, 'Esperá unos segundos o recargá la página e intentá otra vez.');
 $kind = field('kind', 20);
 if (!in_array($kind, ['contact', 'careers'], true)) respond(422, false, 'Formulario no válido.');
 $name = field('name', 300);
@@ -81,5 +95,5 @@ if ($attachment !== null) {
     $headers .= "Content-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64";
     $message = chunk_split(base64_encode($body));
 }
-if (!function_exists('mail') || !@mail($config[$kind], '=?UTF-8?B?' . base64_encode($subject) . '?=', $message, $headers)) respond(503, false, 'El servidor no pudo enviar el mensaje. Intentá más tarde.');
+if (!function_exists('mail') || !@mail($config[$kind], '=?UTF-8?B?' . base64_encode($subject) . '?=', $message, $headers, '-f' . $config['from'])) respond(503, false, 'El servidor no pudo enviar el mensaje. Intentá más tarde.');
 respond(200, true, $kind === 'careers' ? 'Tu postulación fue enviada. Gracias por compartir tu CV.' : 'Tu consulta fue enviada. Gracias por escribirnos.');

@@ -9,11 +9,14 @@ import urllib.error
 host = os.environ['CPANEL_HOST']
 user = os.environ['CPANEL_USER']
 assert host == 'buenosaires.servidoraweb.net' and user == 'm20adminpanel'
-auth = base64.b64encode((user + ':' + os.environ['CPANEL_FTP_PASSWORD']).encode()).decode()
+token = os.environ.get('CPANEL_API_TOKEN', '')
+if not token:
+    raise SystemExit('CPANEL_API_TOKEN is required for administrative inspection.')
+auth = 'cpanel ' + user + ':' + token
 
 def api(module, function, **params):
     url = f'https://{host}:2083/execute/{module}/{function}?' + urllib.parse.urlencode(params)
-    req = urllib.request.Request(url, headers={'Authorization': 'Basic ' + auth})
+    req = urllib.request.Request(url, headers={'Authorization': auth})
     try:
         with urllib.request.urlopen(req, timeout=30) as response:
             data = json.load(response)
