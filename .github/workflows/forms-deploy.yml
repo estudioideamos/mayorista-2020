@@ -1,0 +1,28 @@
+name: Deploy PHP forms
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['enviar.php', 'backend/**', 'scripts/deploy-forms.py', '.github/workflows/forms-deploy.yml']
+permissions:
+  contents: read
+concurrency:
+  group: cpanel-forms-deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - run: php -l enviar.php
+      - run: python3 scripts/test-forms.py
+      - name: Deploy backend and verify HTTPS runtime
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          CPANEL_FTP_PASSWORD: ${{ secrets.CPANEL_FTP_PASSWORD }}
+        run: python3 scripts/deploy-forms.py
