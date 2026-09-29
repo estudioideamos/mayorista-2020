@@ -35,7 +35,7 @@ Después de editar, ejecutar format → build → check y confirmar tanto fuente
 
 ## cPanel y formularios propios
 
-El workflow separado `.github/workflows/cpanel.yml` construye y verifica `dist/` y lo copia por SSH a cPanel en cada push a main. Pages sigue activo. Ver [despliegue y arquitectura de formularios](docs/cpanel-deployment.md).
+El workflow separado `.github/workflows/cpanel.yml` construye y verifica `dist/` y lo copia por FTPS cifrado (puerto 9021) a cPanel en cada push a main. Pages sigue activo. Ver [despliegue y arquitectura de formularios](docs/cpanel-deployment.md).
 
 ### Referencia del endpoint PHP existente
 

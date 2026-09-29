@@ -24,12 +24,10 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run check
-      - name: Deploy and verify public files over SSH
+      - name: Deploy and verify public files over FTPS
         shell: bash
         env:
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
-          CPANEL_PORT: ${{ secrets.CPANEL_PORT }}
           CPANEL_USER: ${{ secrets.CPANEL_USER }}
-          CPANEL_SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
-          CPANEL_SSH_PASSPHRASE: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
-        run: bash scripts/deploy-cpanel.sh
+          CPANEL_FTP_PASSWORD: ${{ secrets.CPANEL_FTP_PASSWORD }}
+        run: python3 scripts/deploy-cpanel.py
