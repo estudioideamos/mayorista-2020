@@ -12,6 +12,16 @@ for (const source of ["index.html", "contacto.html", "recursos-humanos.html", "4
   if (original !== normalized) await fs.writeFile(source, normalized);
 }
 
+// Bake the existing sRGB SVG alpha matrix into the header artwork once,
+// instead of asking each browser to filter a large bitmap during every paint.
+const logo = await sharp("assets/logo-original.png").ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+for (let i = 0; i < logo.data.length; i += 4) {
+  logo.data[i + 3] = Math.round(Math.max(0, Math.min(255,
+    2.8 * 255 - logo.data[i] - logo.data[i + 1] - logo.data[i + 2])));
+}
+await sharp(logo.data, { raw: logo.info }).webp({ lossless: true }).toFile("assets/logo-transparent.webp");
+await sharp("assets/logo-original.png").webp({ lossless: true }).toFile("assets/logo-original.webp");
+
 // Originals stay in design/; only optimized assets are published.
 for (const name of [
   "interior",
@@ -23,7 +33,7 @@ for (const name of [
   "repositor",
   "salon",
 ]) {
-  for (const width of [640, 900, 1200]) {
+  for (const width of [480, 640, 768, 900, 1200]) {
     await sharp(`design/photos/${name}.jpg`)
       .rotate()
       .resize({ width, withoutEnlargement: true })
@@ -75,13 +85,17 @@ for (const file of [
   let html = await fs.readFile(file, "utf8");
   html = html.replace(/<picture class="optimized-picture"><source[^>]*>(<img\b[^>]*>)<\/picture>/g, "$1");
   html = html.replace(/<link rel="stylesheet" href="assets\/fonts\.css\?v=1" \/>\s*/g, "");
+  // This small static site ships its minified stylesheet with the document,
+  // removing a render-blocking round trip without deferred-style flashes.
+  html = html.replace(/<style data-site-styles>[\s\S]*?<\/style>/g, '<link rel="stylesheet" href="styles.min.css?v=build" />');
+  html = html.replace(/<link rel="stylesheet" href="styles\.min\.css\?v=[\w]+" \/>/g, () => `<style data-site-styles>${result.css}</style>`);
   html = html.replace(/<img\b[^>]*>/g, (tag) => {
     const name = tag.match(/src="assets\/([^"/]+)-1200\.webp"/)?.[1];
     if (!dimensions[name]) return tag;
     const { width, height } = dimensions[name];
-    const candidates = [...new Set([Math.min(640, width), Math.min(900, width), width])];
+    const candidates = [...new Set([480, 640, 768, 900, 1200].map(size => Math.min(size, width)))];
     const srcset = (format) => candidates.map((actual) => {
-      const nominal = actual <= 640 ? 640 : actual <= 900 ? 900 : 1200;
+      const nominal = [480, 640, 768, 900, 1200].find(size => size >= actual);
       return `assets/${name}-${nominal}.${format} ${actual}w`;
     }).join(", ");
     const sizes = tag.match(/sizes="([^"]*)"/)?.[1] || "100vw";

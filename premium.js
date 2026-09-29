@@ -17,13 +17,16 @@
   }
   let scheduled = false;
   function update() {
-    const range = root.scrollHeight - innerHeight;
+    // At the top there is no progress to calculate. Avoid forcing full-page
+    // layout while fonts, images and the entrance animations are initializing.
+    const position = scrollY;
+    const range = position > 0 ? root.scrollHeight - innerHeight : 0;
     header.style.setProperty(
       "--progress",
-      range > 0 ? Math.min(1, scrollY / range) : 0,
+      range > 0 ? Math.min(1, position / range) : 0,
     );
-    header.classList.toggle("is-scrolled", scrollY > 30);
-    back.hidden = scrollY < 650;
+    header.classList.toggle("is-scrolled", position > 30);
+    back.hidden = position < 650;
     scheduled = false;
   }
   addEventListener(

@@ -1147,7 +1147,7 @@ h2 em {
 }
 @keyframes hero-breathe {
   to {
-    object-position: 50% 52%;
+    transform: scale(1.025);
   }
 }
 .hero-sticker {
@@ -2921,7 +2921,7 @@ h2 em {
   mix-blend-mode: normal;
 }
 .header .logo-crop img {
-  filter: url(#logo-cutout);
+  /* Transparency is baked into the image at build time. */
 }
 
 @media (min-width: 761px) {
