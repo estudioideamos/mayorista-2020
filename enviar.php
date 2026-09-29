@@ -88,8 +88,8 @@ $statePath = $stateDir . '/state.json';
 if (is_link($statePath)) unavailable('rate_state_link');
 $lock = @fopen($statePath, 'c+');
 if (!$lock || !@chmod($statePath, 0600) || !flock($lock, LOCK_EX)) unavailable('rate_lock_unavailable');
-$raw = stream_get_contents($lock, 32769);
-if ($raw === false || strlen($raw) > 32768) unavailable('rate_state_unreadable');
+$raw = stream_get_contents($lock, 65537);
+if ($raw === false || strlen($raw) > 65536) unavailable('rate_state_unreadable');
 $now = time();
 $hour = (int)floor($now / 3600);
 $state = $raw === '' ? ['hour' => $hour, 'count' => 0, 'recent' => []] : json_decode($raw, true, 8, JSON_THROW_ON_ERROR);
@@ -97,6 +97,19 @@ if (!is_array($state) || !is_int($state['hour'] ?? null) || !is_int($state['coun
 foreach ($state['recent'] as $key => $stamp) {
     if (!is_string($key) || !preg_match('/^[a-f0-9]{64}$/D', $key) || !is_int($stamp)) unavailable('rate_state_invalid');
     if ($stamp <= $now - 60) unset($state['recent'][$key]);
+}
+// Keep only hashes for one hour; exact repeat submissions are not mailed twice.
+$state['duplicates'] = $state['duplicates'] ?? [];
+if (!is_array($state['duplicates'])) unavailable('duplicate_state_invalid');
+foreach ($state['duplicates'] as $key => $stamp) {
+    if (!is_string($key) || !preg_match('/^[a-f0-9]{64}$/D', $key) || !is_int($stamp)) unavailable('duplicate_state_invalid');
+    if ($stamp <= $now - 3600) unset($state['duplicates'][$key]);
+}
+$fingerprint = hash('sha256', $kind . "\0" . $body . "\0" . hash('sha256', $attachment ?? ''));
+if (isset($state['duplicates'][$fingerprint])) {
+    fclose($lock);
+    header('Retry-After: ' . max(1, 3600 - ($now - $state['duplicates'][$fingerprint])));
+    respond(429, false, 'Ya recibimos un envío igual recientemente. Esperá antes de reenviarlo.');
 }
 if ($state['hour'] !== $hour) { $state['hour'] = $hour; $state['count'] = 0; }
 $client = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . __DIR__);
@@ -108,6 +121,7 @@ if (isset($state['recent'][$client]) || $state['count'] >= 100) {
 }
 $state['count']++;
 $state['recent'][$client] = $now;
+$state['duplicates'][$fingerprint] = $now;
 $encoded = json_encode($state, JSON_THROW_ON_ERROR);
 if (!ftruncate($lock, 0) || !rewind($lock) || fwrite($lock, $encoded) !== strlen($encoded) || !fflush($lock)) unavailable('rate_state_write_failed');
 flock($lock, LOCK_UN);
@@ -123,6 +137,19 @@ if ($attachment !== null) {
     $headers .= "Content-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64";
     $message = chunk_split(base64_encode($body));
 }
-if (!function_exists('mail') || !@mail($config[$kind], '=?UTF-8?B?' . base64_encode($subject) . '?=', $message, $headers, '-f' . $config['from'])) unavailable('mail_failed_' . $kind);
+if (!function_exists('mail') || !@mail($config[$kind], '=?UTF-8?B?' . base64_encode($subject) . '?=', $message, $headers, '-f' . $config['from'])) {
+    $retryLock = @fopen($statePath, 'r+');
+    if ($retryLock && flock($retryLock, LOCK_EX)) {
+        $retryState = json_decode(stream_get_contents($retryLock), true);
+        if (is_array($retryState) && ($retryState['duplicates'][$fingerprint] ?? null) === $now) {
+            unset($retryState['duplicates'][$fingerprint]);
+            $retryJson = json_encode($retryState, JSON_THROW_ON_ERROR);
+            if (!ftruncate($retryLock, 0) || !rewind($retryLock) || fwrite($retryLock, $retryJson) !== strlen($retryJson) || !fflush($retryLock)) auditEvent('duplicate_release_failed');
+        }
+        flock($retryLock, LOCK_UN);
+    }
+    if ($retryLock) fclose($retryLock);
+    unavailable('mail_failed_' . $kind);
+}
 auditEvent('mail_accepted_' . $kind);
 respond(200, true, $kind === 'careers' ? 'Tu postulación fue enviada. Gracias por compartir tu CV.' : 'Tu consulta fue enviada. Gracias por escribirnos.');

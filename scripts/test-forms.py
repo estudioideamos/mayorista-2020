@@ -68,6 +68,11 @@ with tempfile.TemporaryDirectory(prefix='m20-forms-test-') as folder:
         msg = email.message_from_bytes(mail.read_bytes(), policy=policy.default)
         assert msg['To'] == 'info@m20mayorista.com' and msg['Reply-To'] == 'info@m20mayorista.com'
         assert request(contact)[0] == 429
+        saved = json.loads(state_file.read_text())
+        saved['recent'] = {}
+        state_file.write_text(json.dumps(saved))
+        assert request(contact)[0] == 429, 'Duplicate payload must be blocked beyond the IP cooldown'
+        assert request(dict(contact, message='Una consulta diferente y legitima.'))[0] == 200
         state_file.write_text('{corrupted')
         assert request(contact)[0] == 503, 'Corrupted rate state must fail closed'
         state_file.write_text(json.dumps({'hour':int(time.time()//3600),'count':100,'recent':{}}))
@@ -82,7 +87,7 @@ with tempfile.TemporaryDirectory(prefix='m20-forms-test-') as folder:
         assert msg['To'] == 'rrhh@m20mayorista.com'
         attachments = list(msg.iter_attachments())
         assert len(attachments) == 1 and attachments[0].get_filename() == 'curriculum.pdf'
-        print('PHP forms: CORS, preflight, validation, honeypot, timing, cooldown, global cap, corrupted-state safety, recipients and PDF attachment passed.')
+        print('PHP forms: CORS, preflight, validation, honeypot, timing, cooldown, duplicate suppression, distinct messages, global cap, corrupted-state safety, recipients and PDF attachment passed.')
     finally:
         process.terminate()
         process.wait(timeout=5)

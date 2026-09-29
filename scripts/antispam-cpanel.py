@@ -12,5 +12,5 @@ try:
         data = cpanel.call(module, function)
         print(module + '/' + function + ': ' + json.dumps(data), flush=True)
 except Exception as error:
-    print('Antispam inspection failed: ' + type(error).__name__, flush=True)
+    print('Antispam inspection failed: ' + (str(error) if isinstance(error, RuntimeError) else type(error).__name__), flush=True)
     raise SystemExit(1) from None
