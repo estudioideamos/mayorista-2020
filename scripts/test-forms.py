@@ -18,7 +18,7 @@ with tempfile.TemporaryDirectory(prefix='m20-forms-test-') as folder:
     root = Path(folder)
     shutil.copyfile('enviar.php', root / 'enviar.php')
     sink = root / 'sendmail.py'
-    sink.write_text('#!/usr/bin/env python3\nimport os,sys\nfrom pathlib import Path\nPath(os.environ["M20_TEST_MAIL"]).write_bytes(sys.stdin.buffer.read())\n')
+    sink.write_text('#!/usr/bin/env python3\nimport os,sys\nfrom pathlib import Path\nif Path(os.environ["M20_TEST_MAIL"]+".fail").exists(): sys.exit(1)\nPath(os.environ["M20_TEST_MAIL"]).write_bytes(sys.stdin.buffer.read())\n')
     sink.chmod(0o700)
     mail = root / 'captured.eml'
     with socket.socket() as sock:
@@ -87,7 +87,19 @@ with tempfile.TemporaryDirectory(prefix='m20-forms-test-') as folder:
         assert msg['To'] == 'rrhh@m20mayorista.com'
         attachments = list(msg.iter_attachments())
         assert len(attachments) == 1 and attachments[0].get_filename() == 'curriculum.pdf'
-        print('PHP forms: CORS, preflight, validation, honeypot, timing, cooldown, duplicate suppression, distinct messages, global cap, corrupted-state safety, recipients and PDF attachment passed.')
+        saved = json.loads(state_file.read_text())
+        saved['recent'] = {}
+        state_file.write_text(json.dumps(saved))
+        fail_flag = Path(str(mail) + '.fail')
+        fail_flag.touch()
+        retry_contact = dict(contact, message='Consulta cuyo primer intento falla en el transporte.')
+        assert request(retry_contact)[0] == 503
+        fail_flag.unlink()
+        saved = json.loads(state_file.read_text())
+        saved['recent'] = {}
+        state_file.write_text(json.dumps(saved))
+        assert request(retry_contact)[0] == 200, 'Transport failure must release duplicate reservation'
+        print('PHP forms: CORS, preflight, validation, honeypot, timing, cooldown, duplicate suppression, distinct messages, global cap, corrupted-state safety, recipients, PDF attachment and failed-mail retry passed.')
     finally:
         process.terminate()
         process.wait(timeout=5)

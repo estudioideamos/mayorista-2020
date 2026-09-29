@@ -30,3 +30,11 @@ Las pruebas automatizadas de seguridad y construcción pasaron. Se verificaron l
 La copia por FTPS incorpora hasta tres intentos con reconexión ante cortes temporales; mantiene la validación TLS y nunca cambia a FTP sin cifrar. Se probaron la recuperación por interrupción de conexión y el rechazo de certificados inválidos.
 
 Las mediciones Lighthouse posteriores variaron entre 41 y 84 en móvil; escritorio con el perfil corregido dio 83. Accesibilidad, buenas prácticas y SEO dieron 100. Esa variación no permite afirmar una mejora sostenida de puntuación móvil; quedan como evidencia de laboratorio, no como garantía de velocidad. Sí se comprobó la carga de imágenes AVIF, sin imágenes rotas, desbordamiento horizontal ni errores JavaScript. La compresión y los tamaños responsivos reducen el peso de las fotografías; los efectos visuales siguen activos.
+
+## Refuerzo antispam adicional
+
+Los formularios rechazan envíos exactamente iguales durante una hora, además del límite por IP y global. Solo se conservan hashes y marcas de tiempo en el estado privado y acotado. Un fallo explícito del transporte libera la reserva de duplicado para permitir el reintento después del límite por IP. Las pruebas cubren duplicados, consultas diferentes y fallos del transporte.
+
+La inspección autenticada de cPanel devolvió: «La prestación spamassassin no está activada en este sistema. Póngase en contacto con su proveedor de hosting para que la active». Por eso no se afirma que SpamAssassin ni Spam Box estén activos: el proveedor debe habilitar la función antes de configurar y verificar el filtro. No se cambiaron listas de remitentes ni se activó borrado automático de mensajes.
+
+Configuración prevista cuando el proveedor habilite la función: inspeccionar reglas existentes, activar análisis, usar umbral inicial 5 y carpeta Spam recuperable, sin whitelist general del propio dominio. La protección de formularios no reemplaza el filtrado del correo que llega directamente a las casillas.
