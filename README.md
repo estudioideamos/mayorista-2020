@@ -62,3 +62,5 @@ robots.txt y sitemap.xml se publican en la raíz de m20mayorista.com. Registrar 
 assets/m20-social.jpg se usa en Open Graph y Twitter Cards. Original en design/social/m20-share-source.png; generado con la herramienta integrada de imágenes a partir del logo. Prompt y notas en docs/social-image.md. Las redes pueden conservar una vista previa anterior en caché.
 
 Logo WhatsApp oficial conservado sin modificar. Fuentes Barlow Condensed y Manrope: licencias OFL en assets/fonts/.
+
+Para construir localmente se requiere Node.js 24.15 o posterior de la rama 24; GitHub Actions utiliza la versión actual de Node 24.

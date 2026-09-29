@@ -21,4 +21,4 @@ GitHub Pages no permite personalizar todas las cabeceras HTTP mediante .htaccess
 
 Fotografías con AVIF y alternativas WebP, tamaños responsivos intermedios, fuentes locales integradas en la hoja principal y ajuste de contraste del título de productos. Se mantienen las animaciones y el diseño. URLs canónicas y sitemap actualizados al dominio público.
 
-Medición inicial Lighthouse local: móvil 67 en rendimiento, escritorio 88, accesibilidad 96, buenas prácticas 100 y SEO 100. Los resultados de laboratorio varían entre ejecuciones y no son métricas de todos los visitantes.
+Medición inicial Lighthouse local: móvil 67 en rendimiento, accesibilidad 96, buenas prácticas 100 y SEO 100. La primera ejecución etiquetada como escritorio utilizó por error emulación móvil: ese valor se descartó y no sirve como comparación de escritorio. Los resultados de laboratorio varían entre ejecuciones y no son métricas de todos los visitantes.
