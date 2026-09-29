@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import ssl
 import sys
+import time
 import uuid
 
 PUBLIC = set('index.html contacto.html recursos-humanos.html 404.html favicon.svg robots.txt sitemap.xml llms.txt styles.min.css app.js premium.js smooth-scroll.js forms.js .nojekyll'.split())
@@ -46,69 +47,76 @@ def main():
     context = ssl.create_default_context()
     context.minimum_version = ssl.TLSVersion.TLSv1_2
     stage = 'connecting to FTPS port 9021'
-    try:
-        with ftplib.FTP_TLS(context=context, timeout=45) as ftp:
-            ftp.connect(host, 9021)
-            ftp.auth()
-            stage = 'authenticating FTP account'
-            ftp.login(user, password)
-            ftp.prot_p()  # Encrypt data as well as credentials. Never fall back to FTP.
-            ftp.set_pasv(True)
-            stage = 'locating public_html'
-            try:
-                ftp.cwd('/home3/m20adminpanel/public_html')
-            except ftplib.error_perm:
-                # cPanel FTP chroots the main account to its home directory.
-                ftp.cwd('/public_html')
-            base = ftp.pwd()
-            if base not in {'/public_html', '/home3/m20adminpanel/public_html'}:
-                raise ValueError('Unexpected FTP target directory')
-            print('FTPS authenticated; public_html selected; TLS certificate verified.', flush=True)
-            uploaded = 0
-            for name, file in files:
-                stage = f'uploading {name}'
-                ftp.cwd(base)
-                for part in name.split('/')[:-1]:
-                    try:
-                        ftp.cwd(part)
-                    except ftplib.error_perm:
-                        ftp.mkd(part)
-                        ftp.cwd(part)
-                expected_hash = hashlib.sha256(file.read_bytes()).digest()
-                current_hash = hashlib.sha256()
+    for attempt in range(1, 4):
+        try:
+            with ftplib.FTP_TLS(context=context, timeout=45) as ftp:
+                ftp.connect(host, 9021)
+                ftp.auth()
+                stage = 'authenticating FTP account'
+                ftp.login(user, password)
+                ftp.prot_p()  # Encrypt data as well as credentials. Never fall back to FTP.
+                ftp.set_pasv(True)
+                stage = 'locating public_html'
                 try:
-                    ftp.retrbinary('RETR ' + file.name, current_hash.update)
-                    if current_hash.digest() == expected_hash:
-                        continue
-                except ftplib.error_perm as error:
-                    if not str(error).startswith('550'):
+                    ftp.cwd('/home3/m20adminpanel/public_html')
+                except ftplib.error_perm:
+                    # cPanel FTP chroots the main account to its home directory.
+                    ftp.cwd('/public_html')
+                base = ftp.pwd()
+                if base not in {'/public_html', '/home3/m20adminpanel/public_html'}:
+                    raise ValueError('Unexpected FTP target directory')
+                print('FTPS authenticated; public_html selected; TLS certificate verified.', flush=True)
+                uploaded = 0
+                for name, file in files:
+                    stage = f'uploading {name}'
+                    ftp.cwd(base)
+                    for part in name.split('/')[:-1]:
+                        try:
+                            ftp.cwd(part)
+                        except ftplib.error_perm:
+                            ftp.mkd(part)
+                            ftp.cwd(part)
+                    expected_hash = hashlib.sha256(file.read_bytes()).digest()
+                    current_hash = hashlib.sha256()
+                    try:
+                        ftp.retrbinary('RETR ' + file.name, current_hash.update)
+                        if current_hash.digest() == expected_hash:
+                            continue
+                    except ftplib.error_perm as error:
+                        if not str(error).startswith('550'):
+                            raise
+                    temporary = '.m20-deploy-' + uuid.uuid4().hex
+                    try:
+                        with file.open('rb') as data:
+                            ftp.storbinary('STOR ' + temporary, data)
+                        remote_hash = hashlib.sha256()
+                        ftp.retrbinary('RETR ' + temporary, remote_hash.update)
+                        if remote_hash.digest() != hashlib.sha256(file.read_bytes()).digest():
+                            raise ValueError('Uploaded file checksum mismatch')
+                        ftp.rename(temporary, file.name)
+                        uploaded += 1
+                        published_hash = hashlib.sha256()
+                        ftp.retrbinary('RETR ' + file.name, published_hash.update)
+                        if published_hash.digest() != remote_hash.digest():
+                            raise ValueError('Published file checksum mismatch')
+                    except Exception:
+                        try:
+                            ftp.delete(temporary)
+                        except ftplib.all_errors:
+                            pass
                         raise
-                temporary = '.m20-deploy-' + uuid.uuid4().hex
-                try:
-                    with file.open('rb') as data:
-                        ftp.storbinary('STOR ' + temporary, data)
-                    remote_hash = hashlib.sha256()
-                    ftp.retrbinary('RETR ' + temporary, remote_hash.update)
-                    if remote_hash.digest() != hashlib.sha256(file.read_bytes()).digest():
-                        raise ValueError('Uploaded file checksum mismatch')
-                    ftp.rename(temporary, file.name)
-                    uploaded += 1
-                    published_hash = hashlib.sha256()
-                    ftp.retrbinary('RETR ' + file.name, published_hash.update)
-                    if published_hash.digest() != remote_hash.digest():
-                        raise ValueError('Published file checksum mismatch')
-                except Exception:
-                    try:
-                        ftp.delete(temporary)
-                    except ftplib.all_errors:
-                        pass
-                    raise
-            print(f'All {len(files)} public files SHA-256 verified; {uploaded} changed files uploaded.')
-    except Exception as error:
-        # Do not print raw server responses, exceptions or credential values.
-        code = str(error)[:3] if isinstance(error, ftplib.Error) and str(error)[:3].isdigit() else type(error).__name__
-        print(f'::error::FTPS failed while {stage} ({code}).', flush=True)
-        raise SystemExit(1) from None
+                print(f'All {len(files)} public files SHA-256 verified; {uploaded} changed files uploaded.')
+            return
+        except Exception as error:
+            # Do not print raw server responses, exceptions or credential values.
+            code = str(error)[:3] if isinstance(error, ftplib.Error) and str(error)[:3].isdigit() else type(error).__name__
+            transient = isinstance(error, (OSError, EOFError, ftplib.error_temp)) and not isinstance(error, ssl.SSLCertVerificationError)
+            if transient and attempt < 3:
+                print(f'::warning::Temporary FTPS interruption while {stage} ({code}); reconnecting, attempt {attempt + 1}/3.', flush=True)
+                time.sleep(2 * attempt)
+                continue
+            print(f'::error::FTPS failed while {stage} ({code}).', flush=True)
+            raise SystemExit(1) from None
 
 
 if __name__ == '__main__':

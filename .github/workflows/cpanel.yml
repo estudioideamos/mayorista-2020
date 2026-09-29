@@ -25,6 +25,7 @@ jobs:
       - run: npm audit --audit-level=high
       - run: npm run build
       - run: npm run check
+      - run: python3 scripts/test-deploy-cpanel.py
       - name: Deploy and verify public files over FTPS
         shell: bash
         env:

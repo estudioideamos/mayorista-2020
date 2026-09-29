@@ -22,3 +22,11 @@ GitHub Pages no permite personalizar todas las cabeceras HTTP mediante .htaccess
 Fotografías con AVIF y alternativas WebP, tamaños responsivos intermedios, fuentes locales integradas en la hoja principal y ajuste de contraste del título de productos. Se mantienen las animaciones y el diseño. URLs canónicas y sitemap actualizados al dominio público.
 
 Medición inicial Lighthouse local: móvil 67 en rendimiento, accesibilidad 96, buenas prácticas 100 y SEO 100. La primera ejecución etiquetada como escritorio utilizó por error emulación móvil: ese valor se descartó y no sirve como comparación de escritorio. Los resultados de laboratorio varían entre ejecuciones y no son métricas de todos los visitantes.
+
+## Verificación de cierre
+
+Las pruebas automatizadas de seguridad y construcción pasaron. Se verificaron los formularios en navegador a 390 y 1366 px y la recepción real en INBOX de info y rrhh, incluido el PDF. El endpoint publica las cabeceras previstas y PHP mantiene upload=5M, post=6M y display_errors=0.
+
+La copia por FTPS incorpora hasta tres intentos con reconexión ante cortes temporales; mantiene la validación TLS y nunca cambia a FTP sin cifrar. Se probaron la recuperación por interrupción de conexión y el rechazo de certificados inválidos.
+
+Las mediciones Lighthouse posteriores variaron entre 41 y 84 en móvil; escritorio con el perfil corregido dio 83. Accesibilidad, buenas prácticas y SEO dieron 100. Esa variación no permite afirmar una mejora sostenida de puntuación móvil; quedan como evidencia de laboratorio, no como garantía de velocidad. Sí se comprobó la carga de imágenes AVIF, sin imágenes rotas, desbordamiento horizontal ni errores JavaScript. La compresión y los tamaños responsivos reducen el peso de las fotografías; los efectos visuales siguen activos.
