@@ -11,7 +11,7 @@
   "devDependencies": {
     "cssnano": "9.0.5",
     "postcss": "8.5.28",
-    "prettier": "3.9.9",
+    "prettier": "3.9.10",
     "sharp": "0.35.5"
   }
 }
